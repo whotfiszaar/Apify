@@ -1,0 +1,242 @@
+/* 
+   Note: Render-blocking @import for Google Fonts is removed.
+   Please make sure to add the following preconnect and stylesheet links to your index.html:
+   <link rel="preconnect" href="https://fonts.googleapis.com">
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+*/
+
+@import "tailwindcss";
+
+/* Default Theme: Dark (VS Code Dark Modern / Postman Dark) */
+:root {
+  --sidebar-bg: #181818;
+  --app-bg: #1e1e1e;
+  --tab-inactive-bg: #181818;
+  --border-color: #2d2d2d;
+  --selection-bg: #2d2d2d;
+  --text-muted: #858585;
+  --text-main: #e1e1e1;
+  --accent-color: #007acc;
+  --accent-hover-color: #0062a3;
+  color-scheme: dark;
+
+  /* Z-Index System */
+  --z-base: 1;
+  --z-sidebar-resize: 40;
+  --z-dropdown: 50;
+  --z-sticky: 100;
+  --z-modal: 200;
+  --z-popover: 250;
+  --z-toast: 300;
+}
+
+/* Theme definitions */
+[data-theme="light"] {
+  --sidebar-bg: #f0f0f0;
+  --app-bg: #fafafa;
+  --tab-inactive-bg: #e8e8e8;
+  --border-color: #d4d4d8;
+  --selection-bg: #dde6f0;
+  --text-muted: #52525b;
+  --text-main: #09090b;
+  --accent-color: #0066cc;
+  --accent-hover-color: #0052a3;
+  color-scheme: light;
+}
+
+[data-theme="dracula"] {
+  --sidebar-bg: #1e1f29;
+  --app-bg: #282a36;
+  --tab-inactive-bg: #21222c;
+  --border-color: #44475a;
+  --selection-bg: #44475a;
+  --text-muted: #6272a4;
+  --text-main: #f8f8f2;
+  --accent-color: #bd93f9;
+  --accent-hover-color: #ff79c6;
+  color-scheme: dark;
+}
+
+[data-theme="monokai"] {
+  --sidebar-bg: #191919;
+  --app-bg: #272822;
+  --tab-inactive-bg: #222222;
+  --border-color: #3e3d32;
+  --selection-bg: #49483e;
+  --text-muted: #75715e;
+  --text-main: #f8f8f2;
+  --accent-color: #a6e22e;
+  --accent-hover-color: #f92672;
+  color-scheme: dark;
+}
+
+[data-theme="ayu-dark"] {
+  --sidebar-bg: #0a0e14;
+  --app-bg: #0f1419;
+  --tab-inactive-bg: #121820;
+  --border-color: #1a232c;
+  --selection-bg: #253340;
+  --text-muted: #5c6773;
+  --text-main: #e6b450;
+  --accent-color: #ffb454;
+  --accent-hover-color: #f29718;
+  color-scheme: dark;
+}
+
+[data-theme="solarized-dark"] {
+  --sidebar-bg: #002b36;
+  --app-bg: #073642;
+  --tab-inactive-bg: #00212b;
+  --border-color: #586e75;
+  --selection-bg: #073642;
+  --text-muted: #586e75;
+  --text-main: #93a1a1;
+  --accent-color: #2aa198;
+  --accent-hover-color: #268bd2;
+  color-scheme: dark;
+}
+
+@theme {
+  /* Override Tailwind neutrals with proper visual granularity */
+  --color-neutral-950: var(--sidebar-bg); /* Sidebar background */
+  --color-neutral-900: var(--app-bg);     /* Main workspace background */
+  --color-neutral-850: var(--tab-inactive-bg); /* Tabs/inactive background */
+  --color-neutral-800: var(--border-color);  /* Borders */
+  --color-neutral-700: var(--selection-bg); /* Active/hover selections */
+  --color-neutral-600: var(--text-muted);
+  --color-neutral-500: color-mix(in srgb, var(--text-muted) 80%, var(--text-main));
+  --color-neutral-400: color-mix(in srgb, var(--text-muted) 60%, var(--text-main));
+  --color-neutral-300: color-mix(in srgb, var(--text-main) 80%, var(--text-muted));
+  --color-neutral-200: var(--text-main);
+  --color-neutral-100: color-mix(in srgb, var(--text-main) 90%, white);
+  
+  --color-brand-blue: var(--accent-color);
+  --color-brand-blue-hover: var(--accent-hover-color);
+
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+/* Global resets and typography */
+html, body, #root {
+  font-family: var(--font-sans);
+  background-color: var(--app-bg);
+  color: var(--text-main);
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  height: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+/* Global non-selectable UI — only inputs, response body and code are selectable */
+* {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+input,
+textarea,
+[contenteditable],
+pre,
+code,
+.selectable {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+/* Custom Scrollbar Styles — ultra-thin 2px CRED-style */
+::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 9999px;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted) !important;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Focus Visible Keyboard Navigation Outline */
+*:focus-visible {
+  outline: 2px solid var(--accent-color) !important;
+  outline-offset: 1px;
+}
+
+/* Disable selection outline glow globally */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent-color) !important;
+}
+
+/* Modern Global Select Dropdown Custom Styles */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+  padding-right: 32px !important;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+select:hover {
+  border-color: var(--accent-color) !important;
+  background-color: var(--tab-inactive-bg);
+}
+
+/* Dropdown hover inside light containers */
+[data-theme="light"] select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234b5563' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+/* Light theme text color overrides — ensure near-black text on light backgrounds */
+[data-theme="light"] .text-neutral-200 { color: var(--text-main); }
+[data-theme="light"] .placeholder-neutral-600::placeholder { color: #a1a1aa; }
+
+/* Animations */
+@keyframes pulse-border {
+  0%, 100% { border-color: var(--accent-color); }
+  50% { border-color: rgba(0, 122, 204, 0.4); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slide-up {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.drag-active {
+  animation: pulse-border 1.5s infinite;
+  background-color: rgba(0, 122, 204, 0.05) !important;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

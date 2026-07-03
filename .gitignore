@@ -1,0 +1,11 @@
+node_modules/
+dist/
+release-builds/
+*.log
+.env
+.env.*
+.DS_Store
+Thumbs.db
+renderer-console.log
+
+dist-web/
