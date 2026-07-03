@@ -1,11 +1,8 @@
 {
-  "buildCommand": "npx vite build --config vite.config.web.ts",
-  "outputDirectory": "dist-web",
+  "buildCommand": "mkdir -p dist-static && cp landing.html dist-static/index.html",
+  "outputDirectory": "dist-static",
   "framework": null,
   "routes": [
-    { "src": "/landing", "dest": "/landing.html" },
-    { "src": "/landing.html", "dest": "/landing.html" },
-    { "handle": "filesystem" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
