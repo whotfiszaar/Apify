@@ -102,7 +102,7 @@ export default function SettingsModal({
   initialTab,
   onTabChange,
 }: SettingsModalProps) {
-  const [activeTab, setActiveTab] = useState<"general" | "themes" | "shortcuts" | "about" | "import">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "themes" | "shortcuts" | "about" | "import">(initialTab || "general");
 
   useEffect(() => {
     if (isOpen && initialTab) {
@@ -110,8 +110,10 @@ export default function SettingsModal({
     }
   }, [isOpen, initialTab]);
 
+  const lastTabRef = useRef(activeTab);
   useEffect(() => {
-    if (onTabChange) {
+    if (onTabChange && lastTabRef.current !== activeTab) {
+      lastTabRef.current = activeTab;
       onTabChange(activeTab);
     }
   }, [activeTab, onTabChange]);

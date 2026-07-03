@@ -492,34 +492,33 @@ export default function RequestWorkspace({
     setLocalUrl(urlVal);
 
     runDebouncedUpdate("url", async () => {
-      const { baseUrl, params: parsedParams } = parseUrlAndParams(urlVal);
+      const { params: parsedParams } = parseUrlAndParams(urlVal);
 
-      if (parsedParams.length > 0) {
-        // Intelligent merge parameters
-        const mergedParams = [...activeRequest.params];
-        parsedParams.forEach((parsed) => {
-          const existsIdx = mergedParams.findIndex((p) => p.key === parsed.key);
-          if (existsIdx > -1) {
-            mergedParams[existsIdx].value = parsed.value;
-            mergedParams[existsIdx].enabled = true;
-          } else {
-            mergedParams.push(parsed);
-          }
-        });
+      // Intelligent merge parameters
+      const enabledParams = parsedParams.map((p) => {
+        const existing = activeRequest.params.find(
+          (ap) => ap.enabled && ap.key === p.key && ap.value === p.value
+        ) || activeRequest.params.find(
+          (ap) => ap.enabled && ap.key === p.key
+        );
+        return {
+          id: existing ? existing.id : p.id,
+          key: p.key,
+          value: p.value,
+          enabled: true,
+          description: existing ? existing.description : "",
+        };
+      });
 
-        await db.requests.update(activeRequest.id, {
-          url: baseUrl,
-          params: mergedParams,
-          updatedAt: Date.now(),
-        });
-        setLocalUrl(baseUrl);
-        setLocalParams(mergedParams);
-      } else {
-        await db.requests.update(activeRequest.id, {
-          url: urlVal,
-          updatedAt: Date.now(),
-        });
-      }
+      const disabledParams = activeRequest.params.filter((p) => !p.enabled);
+      const mergedParams = [...enabledParams, ...disabledParams];
+
+      await db.requests.update(activeRequest.id, {
+        url: urlVal,
+        params: mergedParams,
+        updatedAt: Date.now(),
+      });
+      setLocalParams(mergedParams);
     });
   };
 
@@ -567,8 +566,13 @@ export default function RequestWorkspace({
     items[idx][field] = val;
     setLocalParams(items);
 
+    const { baseUrl } = parseUrlAndParams(localUrl);
+    const newFullUrl = buildUrlWithParams(baseUrl, items);
+    setLocalUrl(newFullUrl);
+
     runDebouncedUpdate("params", async () => {
       await db.requests.update(activeRequest.id, {
+        url: newFullUrl,
         params: items,
         updatedAt: Date.now(),
       });
@@ -582,8 +586,13 @@ export default function RequestWorkspace({
     items[idx].enabled = !items[idx].enabled;
     setLocalParams(items);
 
+    const { baseUrl } = parseUrlAndParams(localUrl);
+    const newFullUrl = buildUrlWithParams(baseUrl, items);
+    setLocalUrl(newFullUrl);
+
     try {
       await db.requests.update(activeRequest.id, {
+        url: newFullUrl,
         params: items,
         updatedAt: Date.now(),
       });
@@ -605,8 +614,13 @@ export default function RequestWorkspace({
     const updated = [...localParams, newRow];
     setLocalParams(updated);
 
+    const { baseUrl } = parseUrlAndParams(localUrl);
+    const newFullUrl = buildUrlWithParams(baseUrl, updated);
+    setLocalUrl(newFullUrl);
+
     try {
       await db.requests.update(activeRequest.id, {
+        url: newFullUrl,
         params: updated,
       });
       setTimeout(() => saveHistoryState(true), 0);
@@ -622,8 +636,13 @@ export default function RequestWorkspace({
     items.splice(idx, 1);
     setLocalParams(items);
 
+    const { baseUrl } = parseUrlAndParams(localUrl);
+    const newFullUrl = buildUrlWithParams(baseUrl, items);
+    setLocalUrl(newFullUrl);
+
     try {
       await db.requests.update(activeRequest.id, {
+        url: newFullUrl,
         params: items,
       });
       setTimeout(() => saveHistoryState(true), 0);

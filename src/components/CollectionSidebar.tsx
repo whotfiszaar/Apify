@@ -963,16 +963,6 @@ export default function CollectionSidebar({
         </div>
       </div>
 
-      {/* bottom importer trigger */}
-      <div className="p-3 border-t border-sidebar-border bg-sidebar-bg/40 shrink-0">
-        <button
-          onClick={() => onOpenSettings("import")}
-          className="w-full rounded-lg border border-sidebar-border hover:border-neutral-700 bg-sidebar-bg px-3 py-2 text-xs font-semibold text-sidebar-text-muted hover:text-sidebar-text flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-        >
-          <Upload className="h-3.5 w-3.5 text-indigo-400 animate-bounce" />
-          <span>Import Postman Collection</span>
-        </button>
-      </div>
 
       {/* Custom Modern Confirm Modal */}
       {confirmState && (

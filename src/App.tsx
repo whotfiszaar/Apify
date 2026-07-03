@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { db, seedDatabaseIfEmpty, pruneHistory, type RequestItem, type RequestTab, type Variable } from "./db/db";
-import { resolveVariables, buildUrlWithParams } from "./utils/urlHelper";
+import { resolveVariables, buildUrlWithParams, parseUrlAndParams } from "./utils/urlHelper";
 import { useLiveQuery } from "dexie-react-hooks";
 import CollectionSidebar from "./components/CollectionSidebar";
 import RequestWorkspace from "./components/RequestWorkspace";
@@ -390,7 +390,8 @@ export default function App() {
       let resolvedUrl = resolveVariables(req.url, mergedVariables);
 
       // Apply parameters table to URL
-      resolvedUrl = buildUrlWithParams(resolvedUrl, req.params);
+      const { baseUrl } = parseUrlAndParams(resolvedUrl);
+      resolvedUrl = buildUrlWithParams(baseUrl, req.params);
       resolvedUrl = resolveVariables(resolvedUrl, mergedVariables); // secondary check for variables inside parameters
 
       // 2. Prepare Headers
