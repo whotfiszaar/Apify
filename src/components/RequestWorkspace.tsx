@@ -806,11 +806,28 @@ export default function RequestWorkspace({
   const handleAuthChange = async (fields: Partial<RequestItem["auth"]>) => {
     if (!activeRequest) return;
     try {
+      let finalAuth = {
+        ...activeRequest.auth,
+        ...fields,
+      };
+
+      // If switching type, remove details of other auth types
+      if (fields.type && fields.type !== activeRequest.auth.type) {
+        finalAuth = { type: fields.type };
+        if (fields.type === "bearer") {
+          finalAuth.bearerToken = "";
+        } else if (fields.type === "basic") {
+          finalAuth.basicUsername = "";
+          finalAuth.basicPassword = "";
+        } else if (fields.type === "apiKey") {
+          finalAuth.apiKeyKey = "";
+          finalAuth.apiKeyValue = "";
+          finalAuth.apiKeyAddTo = "header";
+        }
+      }
+
       await db.requests.update(activeRequest.id, {
-        auth: {
-          ...activeRequest.auth,
-          ...fields,
-        },
+        auth: finalAuth,
         updatedAt: Date.now(),
       });
     } catch (err) {
@@ -944,6 +961,12 @@ export default function RequestWorkspace({
 
   return (
     <div className="flex flex-col h-full bg-neutral-900 text-neutral-200 relative">
+      {/* Postman-style horizontal linear loader during send/waiting state */}
+      {isSending && (
+        <div className="absolute top-[44px] left-0 right-0 z-[100] h-[2px] overflow-hidden pointer-events-none">
+          <div className="linear-progress-bar" />
+        </div>
+      )}
       {/* Dynamic Request Tabs Header (Frameless draggable, dark styling) */}
       <div 
         style={{ WebkitAppRegion: 'drag' } as React.CSSProperties}
@@ -1118,6 +1141,14 @@ export default function RequestWorkspace({
                 onSelect={handleInputCheckVar}
                 onMouseUp={handleInputCheckVar}
                 onBlur={handleInputBlur}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (activeRequest) {
+                      onSendRequest(activeRequest);
+                    }
+                  }
+                }}
                 placeholder="Enter API endpoint URL or ${variable}..."
                 className="flex-1 bg-transparent px-3 py-2 text-xs text-neutral-300 placeholder-neutral-600 focus:outline-none font-mono resize-none"
                 style={{

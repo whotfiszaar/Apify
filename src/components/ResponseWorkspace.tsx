@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { db, type RequestItem, type RequestHistoryItem } from "../db/db";
 import ModernConfirmModal from "./ModernConfirmModal";
+import Editor from "@monaco-editor/react";
 import {
   formatSmartData,
   profileResponseData,
@@ -64,6 +65,7 @@ interface ResponseWorkspaceProps {
   onMinimize: () => void;
   isCollapsed?: boolean;
   onExpand?: () => void;
+  theme?: string;
 }
 
 type ResponseTabType = "pretty" | "table" | "cards" | "tree" | "insights" | "diff" | "headers" | "history";
@@ -81,6 +83,7 @@ export default function ResponseWorkspace({
   onMinimize,
   isCollapsed = false,
   onExpand,
+  theme = "dark",
 }: ResponseWorkspaceProps) {
   const [activeTab, setActiveTab] = useState<ResponseTabType>("pretty");
   const [tableSearch, setTableSearch] = useState("");
@@ -89,10 +92,10 @@ export default function ResponseWorkspace({
   const [selectedTableRow, setSelectedTableRow] = useState<any | null>(null);
   const [copiedResponse, setCopiedResponse] = useState(false);
 
-  // Search states for Pretty JSON tab
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeMatchIndex, setActiveMatchIndex] = useState(0);
-  const [showSearch, setShowSearch] = useState(false);
+  const editorFontFamily = localStorage.getItem("restman-editor-font-family") || "IBMPlexMono, 'Courier New', monospace";
+  const editorFontSize = Number(localStorage.getItem("restman-editor-font-size")) || 11;
+
+
 
   const [confirmState, setConfirmState] = useState<{
     isOpen: boolean;
@@ -103,19 +106,7 @@ export default function ResponseWorkspace({
 
   // --- React Hooks Declared BEFORE Early Returns (CRITICAL FIX) ---
   
-  // Shortcut binder for Ctrl+F inside Pretty JSON
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "f") {
-        if (activeTab === "pretty" && responseData) {
-          e.preventDefault();
-          setShowSearch((prev) => !prev);
-        }
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [activeTab, responseData]);
+
 
   // Escape key handler for drawer closure
   useEffect(() => {
@@ -133,26 +124,6 @@ export default function ResponseWorkspace({
     return JSON.stringify(responseData, null, 2);
   }, [responseData]);
 
-  const matchesCount = useMemo(() => {
-    if (!searchQuery.trim() || !jsonString) return 0;
-    try {
-      const escaped = searchQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const regex = new RegExp(escaped, "gi");
-      const matches = jsonString.match(regex);
-      return matches ? matches.length : 0;
-    } catch {
-      return 0;
-    }
-  }, [searchQuery, jsonString]);
-
-  useEffect(() => {
-    if (showSearch && matchesCount > 0) {
-      const activeEl = document.querySelector(`mark[data-search-match="${activeMatchIndex}"]`);
-      if (activeEl) {
-        activeEl.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      }
-    }
-  }, [activeMatchIndex, showSearch, matchesCount]);
 
   // History Log queries (with DB query limit enforced to avoid massive memory consumption)
   const historyLogs = (useLiveQuery(() => db.history.orderBy("timestamp").reverse().limit(100).toArray()) as RequestHistoryItem[]) || [];
@@ -271,55 +242,7 @@ export default function ResponseWorkspace({
     );
   }
 
-  const getHighlightedText = (text: string, search: string) => {
-    if (!search.trim()) return text;
-    try {
-      const escaped = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const parts = text.split(new RegExp(`(${escaped})`, "gi"));
-      let matchCount = 0;
-      return (
-        <>
-          {parts.map((part, i) => {
-            if (part.toLowerCase() === search.toLowerCase()) {
-              const currentIdx = matchCount++;
-              const isActive = currentIdx === activeMatchIndex;
-              return (
-                <mark
-                  key={i}
-                  data-search-match={currentIdx}
-                  className={`rounded-sm px-0.5 border transition-colors ${
-                    isActive
-                      ? "bg-amber-500 text-black border-amber-400 font-bold"
-                      : "bg-neutral-800 text-neutral-200 border-neutral-700"
-                  }`}
-                >
-                  {part}
-                </mark>
-              );
-            }
-            return part;
-          })}
-        </>
-      );
-    } catch {
-      return text;
-    }
-  };
 
-  const handleSearchInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      if (e.shiftKey) {
-        setActiveMatchIndex((prev) => (prev - 1 + matchesCount) % matchesCount);
-      } else {
-        setActiveMatchIndex((prev) => (prev + 1) % matchesCount);
-      }
-    } else if (e.key === "Escape") {
-      e.preventDefault();
-      setShowSearch(false);
-      setSearchQuery("");
-    }
-  };
 
   // Copy whole response helper
   const handleCopyResponse = () => {
@@ -516,60 +439,28 @@ export default function ResponseWorkspace({
           <div className="h-full">
             {/* TAB VIEW: PRETTY COLLAPSED RAW JSON WITH INBUILT SEARCH */}
             {activeTab === "pretty" && (
-              <div className="relative rounded-xl border border-neutral-900 bg-neutral-950 p-3 flex flex-col h-full min-h-[300px]">
-                {/* Search Bar Overlay */}
-                {showSearch && (
-                  <div className="absolute top-2 right-2 z-40 flex items-center gap-1.5 bg-neutral-900 border border-neutral-800 p-1.5 rounded-lg shadow-2xl animate-fade-in text-[11px] text-neutral-300 select-none">
-                    <input
-                      type="text"
-                      placeholder="Search payload..."
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setActiveMatchIndex(0);
-                      }}
-                      onKeyDown={handleSearchInputKeyDown}
-                      className="bg-neutral-950 border border-neutral-850 rounded px-2 py-1 text-xs text-white placeholder-neutral-600 focus:outline-none focus:border-emerald-500 w-44 font-sans"
-                      autoFocus
-                    />
-                    <span className="text-neutral-500 font-mono shrink-0">
-                      {matchesCount > 0 ? `${activeMatchIndex + 1} of ${matchesCount}` : "0 of 0"}
-                    </span>
-                    <button
-                      disabled={matchesCount === 0}
-                      onClick={() => setActiveMatchIndex((prev) => (prev - 1 + matchesCount) % matchesCount)}
-                      className="p-1 hover:bg-neutral-800 rounded text-neutral-400 hover:text-white transition-colors cursor-pointer disabled:opacity-30"
-                      title="Previous Match (Shift+Enter)"
-                    >
-                      <ChevronUp className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      disabled={matchesCount === 0}
-                      onClick={() => setActiveMatchIndex((prev) => (prev + 1) % matchesCount)}
-                      className="p-1 hover:bg-neutral-800 rounded text-neutral-400 hover:text-white transition-colors cursor-pointer disabled:opacity-30"
-                      title="Next Match (Enter)"
-                    >
-                      <ChevronDown className="h-3.5 w-3.5" />
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowSearch(false);
-                        setSearchQuery("");
-                      }}
-                      className="p-1 hover:bg-neutral-800 rounded text-neutral-400 hover:text-white transition-colors cursor-pointer"
-                      title="Close search"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                )}
-
-                {/* Remove static max-h constraint when maximized */}
-                <div className={`flex-1 overflow-auto scrollbar-thin selectable ${isMaximized ? "max-h-full" : "max-h-[400px]"}`}>
-                  <pre className="text-[11px] font-mono text-emerald-400 leading-relaxed selectable select-all selection:bg-neutral-800 whitespace-pre-wrap break-all">
-                    {searchQuery ? getHighlightedText(jsonString, searchQuery) : jsonString}
-                  </pre>
-                </div>
+              <div className="relative rounded-xl border border-neutral-900 bg-neutral-950 p-2 flex flex-col h-full min-h-[350px] overflow-hidden">
+                <Editor
+                  height="100%"
+                  language="json"
+                  theme={theme === "light" ? "light" : "vs-dark"}
+                  value={jsonString}
+                  options={{
+                    readOnly: true,
+                    minimap: { enabled: false },
+                    scrollBeyondLastLine: false,
+                    fontSize: editorFontSize,
+                    fontFamily: editorFontFamily,
+                    lineNumbers: "on",
+                    folding: true,
+                    glyphMargin: false,
+                    lineDecorationsWidth: 10,
+                    lineNumbersMinChars: 3,
+                    renderLineHighlight: "none",
+                    wordWrap: "on",
+                    domReadOnly: true,
+                  }}
+                />
               </div>
             )}
 

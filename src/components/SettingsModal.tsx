@@ -20,40 +20,49 @@ interface SettingsModalProps {
 
 const THEMES = [
   {
+    id: "light",
+    name: "Light",
+    sidebarBg: "bg-[#151515]",
+    appBg: "bg-[#ffffff]",
+    borderBg: "border-[#e4e4e7]",
+    accentBg: "bg-[#0284c7]",
+    textColor: "text-[#09090b]",
+  },
+  {
     id: "dark",
-    name: "Dark (VS Code Modern)",
-    sidebarBg: "bg-[#181818]",
-    appBg: "bg-[#1e1e1e]",
+    name: "Dark",
+    sidebarBg: "bg-[#141414]",
+    appBg: "bg-[#1c1c1c]",
     borderBg: "border-[#2d2d2d]",
-    accentBg: "bg-[#007acc]",
+    accentBg: "bg-[#ff6c37]",
     textColor: "text-[#e1e1e1]",
   },
   {
-    id: "light",
-    name: "Light (Classic)",
-    sidebarBg: "bg-[#f3f3f3]",
+    id: "high-contrast-light",
+    name: "High Contrast Light",
+    sidebarBg: "bg-[#000000]",
     appBg: "bg-[#ffffff]",
-    borderBg: "border-[#e4e4e7]",
-    accentBg: "bg-[#0066cc]",
-    textColor: "text-[#333333]",
+    borderBg: "border-[#000000]",
+    accentBg: "bg-[#0000ff]",
+    textColor: "text-[#000000]",
   },
   {
-    id: "dracula",
-    name: "Dracula",
-    sidebarBg: "bg-[#21222c]",
-    appBg: "bg-[#282a36]",
-    borderBg: "border-[#44475a]",
-    accentBg: "bg-[#bd93f9]",
-    textColor: "text-[#f8f8f2]",
+    id: "high-contrast-dark",
+    name: "High Contrast Dark",
+    sidebarBg: "bg-[#000000]",
+    appBg: "bg-[#000000]",
+    borderBg: "border-[#ffffff]",
+    accentBg: "bg-[#00ffff]",
+    textColor: "text-[#ffffff]",
   },
   {
-    id: "monokai",
-    name: "Monokai Pro",
-    sidebarBg: "bg-[#1e1f1c]",
-    appBg: "bg-[#272822]",
-    borderBg: "border-[#3e3d32]",
-    accentBg: "bg-[#a6e22e]",
-    textColor: "text-[#f8f8f2]",
+    id: "ayu-light",
+    name: "Ayu Light",
+    sidebarBg: "bg-[#fafafa]",
+    appBg: "bg-[#fcfcfc]",
+    borderBg: "border-[#e6e6e6]",
+    accentBg: "bg-[#f29718]",
+    textColor: "text-[#5c6773]",
   },
   {
     id: "ayu-dark",
@@ -65,10 +74,55 @@ const THEMES = [
     textColor: "text-[#e6b450]",
   },
   {
+    id: "dracula",
+    name: "Dracula",
+    sidebarBg: "bg-[#1e1f29]",
+    appBg: "bg-[#282a36]",
+    borderBg: "border-[#44475a]",
+    accentBg: "bg-[#bd93f9]",
+    textColor: "text-[#f8f8f2]",
+  },
+  {
+    id: "monokai",
+    name: "Monokai",
+    sidebarBg: "bg-[#191919]",
+    appBg: "bg-[#272822]",
+    borderBg: "border-[#3e3d32]",
+    accentBg: "bg-[#a6e22e]",
+    textColor: "text-[#f8f8f2]",
+  },
+  {
+    id: "night-owl-light",
+    name: "Night Owl Light",
+    sidebarBg: "bg-[#f0f4f8]",
+    appBg: "bg-[#fafcff]",
+    borderBg: "border-[#d9e2ec]",
+    accentBg: "bg-[#2aa198]",
+    textColor: "text-[#403f53]",
+  },
+  {
+    id: "night-owl-dark",
+    name: "Night Owl Dark",
+    sidebarBg: "bg-[#01111d]",
+    appBg: "bg-[#011627]",
+    borderBg: "border-[#1d3b53]",
+    accentBg: "bg-[#7fdbca]",
+    textColor: "text-[#d6deeb]",
+  },
+  {
+    id: "solarized-light",
+    name: "Solarized Light",
+    sidebarBg: "bg-[#f5f2eb]",
+    appBg: "bg-[#fdf6e3]",
+    borderBg: "border-[#eee8d5]",
+    accentBg: "bg-[#b58900]",
+    textColor: "text-[#586e75]",
+  },
+  {
     id: "solarized-dark",
     name: "Solarized Dark",
-    sidebarBg: "bg-[#073642]",
-    appBg: "bg-[#002b36]",
+    sidebarBg: "bg-[#002b36]",
+    appBg: "bg-[#073642]",
     borderBg: "border-[#586e75]",
     accentBg: "bg-[#2aa198]",
     textColor: "text-[#93a1a1]",
@@ -121,6 +175,102 @@ export default function SettingsModal({
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [confirmInput, setConfirmInput] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Request States
+  const [httpVersion, setHttpVersion] = useState(() => localStorage.getItem("restman-http-version") || "Auto");
+  const [requestTimeout, setRequestTimeout] = useState(() => Number(localStorage.getItem("restman-request-timeout")) || 0);
+  const [maxResponseSize, setMaxResponseSize] = useState(() => Number(localStorage.getItem("restman-max-response-size")) || 1000);
+  const [sslVerification, setSslVerification] = useState(() => localStorage.getItem("restman-ssl-verification") !== "false");
+  const [sslKeyLog, setSslKeyLog] = useState(() => localStorage.getItem("restman-ssl-key-log") === "true");
+  const [disableCookies, setDisableCookies] = useState(() => localStorage.getItem("restman-disable-cookies") === "true");
+  const [responseFormatDetection, setResponseFormatDetection] = useState(() => localStorage.getItem("restman-response-format-detection") || "JSON");
+
+  // Working Directory States
+  const [workingDirectory, setWorkingDirectory] = useState(() => localStorage.getItem("restman-working-directory") || "C:\\Users\\AkibKhan\\Postman\\files");
+  const [readFilesOutsideWorkingDir, setReadFilesOutsideWorkingDir] = useState(() => localStorage.getItem("restman-read-files-outside-working-dir") !== "false");
+
+  // Headers
+  const [sendNoCacheHeader, setSendNoCacheHeader] = useState(() => localStorage.getItem("restman-send-no-cache") !== "false");
+  const [sendPostmanTokenHeader, setSendPostmanTokenHeader] = useState(() => localStorage.getItem("restman-send-token") === "true");
+
+  // Editor Settings States
+  const [editorFontFamily, setEditorFontFamily] = useState(() => localStorage.getItem("restman-editor-font-family") || "IBMPlexMono, 'Courier New', monospace");
+  const [editorFontSize, setEditorFontSize] = useState(() => Number(localStorage.getItem("restman-editor-font-size")) || 12);
+  const [editorIndentCount, setEditorIndentCount] = useState(() => Number(localStorage.getItem("restman-editor-indent-count")) || 4);
+  const [editorIndentType, setEditorIndentType] = useState(() => (localStorage.getItem("restman-editor-indent-type") as "Space" | "Tab") || "Space");
+  const [editorAutoCloseBrackets, setEditorAutoCloseBrackets] = useState(() => localStorage.getItem("restman-editor-auto-close-brackets") !== "false");
+  const [editorAutoCloseQuotes, setEditorAutoCloseQuotes] = useState(() => localStorage.getItem("restman-editor-auto-close-quotes") !== "false");
+
+  // Application States
+  const [appLanguage, setAppLanguage] = useState(() => localStorage.getItem("restman-app-lang") || "English");
+  const [appAutosave, setAppAutosave] = useState(() => localStorage.getItem("restman-app-autosave") !== "false");
+  const [appSendUsageData, setAppSendUsageData] = useState(() => localStorage.getItem("restman-app-usage-data") !== "false");
+  const [appShowNotificationBadge, setAppShowNotificationBadge] = useState(() => localStorage.getItem("restman-app-badge") !== "false");
+
+  // Sync to localStorage
+  useEffect(() => {
+    localStorage.setItem("restman-http-version", httpVersion);
+  }, [httpVersion]);
+  useEffect(() => {
+    localStorage.setItem("restman-request-timeout", String(requestTimeout));
+  }, [requestTimeout]);
+  useEffect(() => {
+    localStorage.setItem("restman-max-response-size", String(maxResponseSize));
+  }, [maxResponseSize]);
+  useEffect(() => {
+    localStorage.setItem("restman-ssl-verification", String(sslVerification));
+  }, [sslVerification]);
+  useEffect(() => {
+    localStorage.setItem("restman-ssl-key-log", String(sslKeyLog));
+  }, [sslKeyLog]);
+  useEffect(() => {
+    localStorage.setItem("restman-disable-cookies", String(disableCookies));
+  }, [disableCookies]);
+  useEffect(() => {
+    localStorage.setItem("restman-response-format-detection", responseFormatDetection);
+  }, [responseFormatDetection]);
+  useEffect(() => {
+    localStorage.setItem("restman-working-directory", workingDirectory);
+  }, [workingDirectory]);
+  useEffect(() => {
+    localStorage.setItem("restman-read-files-outside-working-dir", String(readFilesOutsideWorkingDir));
+  }, [readFilesOutsideWorkingDir]);
+  useEffect(() => {
+    localStorage.setItem("restman-send-no-cache", String(sendNoCacheHeader));
+  }, [sendNoCacheHeader]);
+  useEffect(() => {
+    localStorage.setItem("restman-send-token", String(sendPostmanTokenHeader));
+  }, [sendPostmanTokenHeader]);
+  useEffect(() => {
+    localStorage.setItem("restman-editor-font-family", editorFontFamily);
+  }, [editorFontFamily]);
+  useEffect(() => {
+    localStorage.setItem("restman-editor-font-size", String(editorFontSize));
+  }, [editorFontSize]);
+  useEffect(() => {
+    localStorage.setItem("restman-editor-indent-count", String(editorIndentCount));
+  }, [editorIndentCount]);
+  useEffect(() => {
+    localStorage.setItem("restman-editor-indent-type", editorIndentType);
+  }, [editorIndentType]);
+  useEffect(() => {
+    localStorage.setItem("restman-editor-auto-close-brackets", String(editorAutoCloseBrackets));
+  }, [editorAutoCloseBrackets]);
+  useEffect(() => {
+    localStorage.setItem("restman-editor-auto-close-quotes", String(editorAutoCloseQuotes));
+  }, [editorAutoCloseQuotes]);
+  useEffect(() => {
+    localStorage.setItem("restman-app-lang", appLanguage);
+  }, [appLanguage]);
+  useEffect(() => {
+    localStorage.setItem("restman-app-autosave", String(appAutosave));
+  }, [appAutosave]);
+  useEffect(() => {
+    localStorage.setItem("restman-app-usage-data", String(appSendUsageData));
+  }, [appSendUsageData]);
+  useEffect(() => {
+    localStorage.setItem("restman-app-badge", String(appShowNotificationBadge));
+  }, [appShowNotificationBadge]);
 
   // Import / Sync States
   const [importTab, setImportTab] = useState<"auto" | "manual">("manual");
@@ -430,15 +580,130 @@ export default function SettingsModal({
             
             {/* GENERAL TAB */}
             {activeTab === "general" && (
-              <div className="flex flex-col gap-5">
-                <div>
-                  <h4 className="font-semibold text-white mb-1.5">Request Settings</h4>
-                  <p className="text-[11px] text-neutral-400 leading-relaxed">
-                    Configure connection parameters. Request changes are securely auto-saved into local workspace database sandbox.
-                  </p>
+              <div className="flex flex-col gap-6 text-neutral-300 pr-1 text-xs select-none">
+                {/* Request Section */}
+                <div className="flex flex-col gap-4">
+                  <h3 className="text-sm font-bold text-white border-b border-neutral-850 pb-2">Request</h3>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">HTTP version <span className="text-[9px] bg-sky-500/10 text-sky-400 border border-sky-500/20 px-1.5 py-0.5 rounded ml-1 font-bold">NEW</span></span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Select the HTTP version to use for sending the request.</p>
+                    </div>
+                    <select
+                      value={httpVersion}
+                      onChange={(e) => setHttpVersion(e.target.value)}
+                      className="bg-neutral-950 border border-neutral-800 rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-brand-blue"
+                    >
+                      <option value="Auto">Auto</option>
+                      <option value="HTTP/1.1">HTTP/1.1</option>
+                      <option value="HTTP/2">HTTP/2</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Request timeout</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Set how long a request should wait for a response before timing out. To never time out, set to 0.</p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="number"
+                        value={requestTimeout}
+                        onChange={(e) => setRequestTimeout(Number(e.target.value))}
+                        className="w-20 bg-neutral-950 border border-neutral-800 rounded px-2.5 py-1 text-xs text-white text-right focus:outline-none focus:border-brand-blue font-mono"
+                      />
+                      <span className="text-[10px] text-neutral-500 font-mono">ms</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Max response size</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Set the maximum size of a response to download. To download a response of any size, set to 0.</p>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="number"
+                        value={maxResponseSize}
+                        onChange={(e) => setMaxResponseSize(Number(e.target.value))}
+                        className="w-20 bg-neutral-950 border border-neutral-800 rounded px-2.5 py-1 text-xs text-white text-right focus:outline-none focus:border-brand-blue font-mono"
+                      />
+                      <span className="text-[10px] text-neutral-500 font-mono">MB</span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">SSL certificate verification</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Toggle to verify SSL certificates when making requests.</p>
+                    </div>
+                    <button
+                      onClick={() => setSslVerification(!sslVerification)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${sslVerification ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${sslVerification ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">SSL/TLS key log</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Enable SSL/TLS session key logging for debugging encrypted connections.</p>
+                    </div>
+                    <button
+                      onClick={() => setSslKeyLog(!sslKeyLog)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${sslKeyLog ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${sslKeyLog ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Disable cookies</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Disable cookie jar for all requests.</p>
+                    </div>
+                    <button
+                      onClick={() => setDisableCookies(!disableCookies)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${disableCookies ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${disableCookies ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Response format detection</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Auto-detect response payload formatting format.</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="format-detection"
+                          checked={responseFormatDetection === "Auto"}
+                          onChange={() => setResponseFormatDetection("Auto")}
+                          className="accent-brand-blue cursor-pointer"
+                        />
+                        <span>Auto</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="format-detection"
+                          checked={responseFormatDetection === "JSON"}
+                          onChange={() => setResponseFormatDetection("JSON")}
+                          className="accent-brand-blue cursor-pointer"
+                        />
+                        <span>JSON</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="border-t border-neutral-900/60 pt-4 flex flex-col gap-3">
+                {/* CORS Bypass Proxy Configuration */}
+                <div className="border-t border-neutral-850 pt-4 flex flex-col gap-3">
                   <h4 className="font-semibold text-white flex items-center gap-1.5 font-sans">
                     <ShieldCheck className="h-4 w-4 text-emerald-500" />
                     CORS Bypass Proxy configuration
@@ -472,7 +737,7 @@ export default function SettingsModal({
                         placeholder="e.g. https://cors-anywhere.herokuapp.com/"
                         value={proxyUrl}
                         onChange={(e) => onProxyUrlChange(e.target.value)}
-                        className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-emerald-500 font-mono"
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-2.5 text-xs text-neutral-200 focus:outline-none focus:border-brand-blue font-mono"
                       />
                       <span className="text-[9px] text-neutral-500 block mt-1.5 leading-relaxed font-sans">
                         Ensure the proxy URL ends with a forward slash and is actively running. Requests will be prefixed like: <code className="text-neutral-400 font-mono">{proxyUrl || "[Proxy-URL]"}https://api.example.com</code>.
@@ -481,14 +746,79 @@ export default function SettingsModal({
                   )}
                 </div>
 
-                {/* WORKSPACE TYPOGRAPHY STYLE */}
-                <div className="border-t border-neutral-900/60 pt-4 flex flex-col gap-3">
+                {/* Working Directory Section */}
+                <div className="flex flex-col gap-4 pt-4 border-t border-neutral-850">
+                  <h3 className="text-sm font-bold text-white pb-1">Working directory</h3>
+                  <p className="text-[10px] text-neutral-500 -mt-2.5">Collaborate on files used in requests by sharing your working directory.</p>
+                  
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-semibold text-white shrink-0">Location</span>
+                    <div className="flex-1 flex gap-2">
+                      <input
+                        type="text"
+                        value={workingDirectory}
+                        onChange={(e) => setWorkingDirectory(e.target.value)}
+                        className="flex-1 bg-neutral-950 border border-neutral-800 rounded px-2.5 py-1 text-xs text-neutral-400 focus:outline-none"
+                      />
+                      <button className="px-3 py-1 bg-neutral-900 border border-neutral-800 hover:bg-neutral-850 rounded text-[10px] font-bold text-white transition-colors cursor-pointer">
+                        Choose
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Read files outside working directory</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Enabling this will allow any 3rd party collections to potentially read any file on your system.</p>
+                    </div>
+                    <button
+                      onClick={() => setReadFilesOutsideWorkingDir(!readFilesOutsideWorkingDir)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${readFilesOutsideWorkingDir ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${readFilesOutsideWorkingDir ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Headers Section */}
+                <div className="flex flex-col gap-4 pt-4 border-t border-neutral-850">
+                  <h3 className="text-sm font-bold text-white pb-1">Headers</h3>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Send no-cache header</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Include a Cache-Control: no-cache header in all requests.</p>
+                    </div>
+                    <button
+                      onClick={() => setSendNoCacheHeader(!sendNoCacheHeader)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${sendNoCacheHeader ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${sendNoCacheHeader ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Send Postman token header</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Include a Postman-Token header in all requests.</p>
+                    </div>
+                    <button
+                      onClick={() => setSendPostmanTokenHeader(!sendPostmanTokenHeader)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${sendPostmanTokenHeader ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${sendPostmanTokenHeader ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Workspace Typography Style */}
+                <div className="border-t border-neutral-850 pt-4 flex flex-col gap-3">
                   <h4 className="font-semibold text-white flex items-center gap-1.5 font-sans">
                     <Type className="h-4 w-4 text-brand-blue" />
                     Workspace Typography Style
                   </h4>
                   <p className="text-[10px] text-neutral-500 leading-relaxed font-sans font-normal">
-                    Choose from the top 10 best professional corporate minimal fonts. The selected font family will adapt globally across the workspace.
+                    Choose from the top corporate minimal fonts. The selected font family will adapt globally across the workspace.
                   </p>
                   
                   <div className="grid grid-cols-2 gap-2 mt-1">
@@ -514,11 +844,181 @@ export default function SettingsModal({
                   </div>
                 </div>
 
-                {/* DANGER ZONE */}
-                <div className="border-t border-red-950/40 border-dashed pt-4 flex flex-col gap-3 mt-2 font-sans">
-                  <h4 className="font-semibold text-red-400 flex items-center gap-1.5">
-                    Danger Zone
-                  </h4>
+                {/* Editor Settings Section */}
+                <div className="flex flex-col gap-4 pt-4 border-t border-neutral-850">
+                  <h3 className="text-sm font-bold text-white pb-1">Editor settings</h3>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Font Family</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Change the default font family for editor panels.</p>
+                    </div>
+                    <input
+                      type="text"
+                      value={editorFontFamily}
+                      onChange={(e) => setEditorFontFamily(e.target.value)}
+                      className="w-48 bg-neutral-950 border border-neutral-800 rounded px-2.5 py-1 text-xs text-white focus:outline-none focus:border-brand-blue font-mono"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Font Size (px)</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Set the default font size in pixels.</p>
+                    </div>
+                    <input
+                      type="number"
+                      value={editorFontSize}
+                      onChange={(e) => setEditorFontSize(Number(e.target.value))}
+                      className="w-20 bg-neutral-950 border border-neutral-800 rounded px-2.5 py-1 text-xs text-white text-right focus:outline-none focus:border-brand-blue font-mono"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Indentation count</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Set number of indentations to add per code level.</p>
+                    </div>
+                    <input
+                      type="number"
+                      value={editorIndentCount}
+                      onChange={(e) => setEditorIndentCount(Number(e.target.value))}
+                      className="w-20 bg-neutral-950 border border-neutral-800 rounded px-2.5 py-1 text-xs text-white text-right focus:outline-none focus:border-brand-blue font-mono"
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Indentation type</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Choose indentation method for code styling.</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="indent-type"
+                          checked={editorIndentType === "Space"}
+                          onChange={() => setEditorIndentType("Space")}
+                          className="accent-brand-blue cursor-pointer"
+                        />
+                        <span>Space</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="indent-type"
+                          checked={editorIndentType === "Tab"}
+                          onChange={() => setEditorIndentType("Tab")}
+                          className="accent-brand-blue cursor-pointer"
+                        />
+                        <span>Tab</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Auto close brackets</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Automatically insert matching brackets during typing.</p>
+                    </div>
+                    <button
+                      onClick={() => setEditorAutoCloseBrackets(!editorAutoCloseBrackets)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${editorAutoCloseBrackets ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${editorAutoCloseBrackets ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Auto close quotes</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Automatically insert matching quotes during typing.</p>
+                    </div>
+                    <button
+                      onClick={() => setEditorAutoCloseQuotes(!editorAutoCloseQuotes)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${editorAutoCloseQuotes ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${editorAutoCloseQuotes ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Application Section */}
+                <div className="flex flex-col gap-4 pt-4 border-t border-neutral-850">
+                  <h3 className="text-sm font-bold text-white pb-1">Application</h3>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Language</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Choose the interface language display.</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="app-lang"
+                          checked={appLanguage === "English"}
+                          onChange={() => setAppLanguage("English")}
+                          className="accent-brand-blue cursor-pointer"
+                        />
+                        <span>English</span>
+                      </label>
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="app-lang"
+                          checked={appLanguage === "日本語"}
+                          onChange={() => setAppLanguage("日本語")}
+                          className="accent-brand-blue cursor-pointer"
+                        />
+                        <span>日本語</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Autosave <span className="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1 rounded ml-1 font-bold">BETA</span></span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Autosave changes to your requests in real time.</p>
+                    </div>
+                    <button
+                      onClick={() => setAppAutosave(!appAutosave)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${appAutosave ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${appAutosave ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Send anonymous usage data</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Help improve our client by sharing crash reports and anonymized diagnostic data.</p>
+                    </div>
+                    <button
+                      onClick={() => setAppSendUsageData(!appSendUsageData)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${appSendUsageData ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${appSendUsageData ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-semibold text-white">Show notification badge on app icon</span>
+                      <p className="text-[10px] text-neutral-500 mt-0.5">Show a count of unread notifications on the app taskbar icon.</p>
+                    </div>
+                    <button
+                      onClick={() => setAppShowNotificationBadge(!appShowNotificationBadge)}
+                      className={`relative w-8 h-4.5 rounded-full transition-colors duration-200 focus:outline-none cursor-pointer ${appShowNotificationBadge ? "bg-brand-blue" : "bg-neutral-850"}`}
+                    >
+                      <div className={`w-3.5 h-3.5 rounded-full bg-white transition-transform duration-200 transform ${appShowNotificationBadge ? "translate-x-4" : "translate-x-0.5"}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Danger Zone / Wipe Workspace */}
+                <div className="flex flex-col gap-4 pt-4 border-t border-red-950/40 border-dashed mt-2">
+                  <h3 className="text-sm font-bold text-red-400 pb-1">Danger Zone</h3>
                   <div className="flex items-center justify-between bg-red-950/10 border border-red-900/20 rounded-lg p-3">
                     <div>
                       <p className="text-xs font-bold text-neutral-200">Delete All Collections</p>

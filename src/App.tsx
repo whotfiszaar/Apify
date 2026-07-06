@@ -68,8 +68,8 @@ export default function App() {
   const [responsePaneHeight, setResponsePaneHeight] = useState(350);
   const [isDraggingResponseHeight, setIsDraggingResponseHeight] = useState(false);
 
-  // UI Theme (dark first)
-  const [theme, setTheme] = useState<string>("dark");
+  // UI Theme (light first)
+  const [theme, setTheme] = useState<string>("light");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsTab, setSettingsTab] = useState<"general" | "themes" | "shortcuts" | "about" | "import">("general");
   const [fontFamily, setFontFamily] = useState<string>("'Plus Jakarta Sans', sans-serif");
@@ -148,7 +148,8 @@ export default function App() {
   useEffect(() => {
     const root = window.document.documentElement;
     root.setAttribute("data-theme", theme);
-    if (theme === "light") {
+    const isLightTheme = ["light", "high-contrast-light", "ayu-light", "night-owl-light", "solarized-light"].includes(theme);
+    if (isLightTheme) {
       root.classList.remove("dark");
       root.style.colorScheme = "light";
     } else {
@@ -310,19 +311,21 @@ export default function App() {
   // Drag listeners
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      const currentZoom = zoomLevel * 1.35;
+
       if (isDraggingSidebar) {
-        const newWidth = Math.max(180, Math.min(500, e.clientX));
+        const newWidth = Math.max(180, Math.min(500, e.clientX / currentZoom));
         setSidebarWidth(newWidth);
       }
 
       if (isDraggingRequestPane) {
-        const sidebarAndLeft = sidebarWidth + 8; // Offset
-        const newWidth = Math.max(300, Math.min(800, e.clientX - sidebarAndLeft));
+        const sidebarAndLeft = (sidebarOpen ? sidebarWidth : 0) + 8; // Offset
+        const newWidth = Math.max(300, Math.min(800, (e.clientX / currentZoom) - sidebarAndLeft));
         setRequestPaneWidth(newWidth);
       }
 
       if (isDraggingResponseHeight) {
-        const newHeight = Math.max(150, Math.min(window.innerHeight - 150, window.innerHeight - e.clientY));
+        const newHeight = Math.max(150, Math.min((window.innerHeight / currentZoom) - 150, (window.innerHeight - e.clientY) / currentZoom));
         setResponsePaneHeight(newHeight);
       }
     };
@@ -352,7 +355,7 @@ export default function App() {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
     };
-  }, [isDraggingSidebar, isDraggingRequestPane, isDraggingResponseHeight, sidebarWidth, requestPaneWidth, responsePaneHeight]);
+  }, [isDraggingSidebar, isDraggingRequestPane, isDraggingResponseHeight, sidebarWidth, requestPaneWidth, responsePaneHeight, zoomLevel, sidebarOpen]);
 
   // Handle Request tab switching (with optimized batch write and response caching)
   const handleSelectTab = async (tabId: string) => {
@@ -419,6 +422,18 @@ export default function App() {
     setActiveResponseDuration(null);
     setActiveResponseSize(null);
     setActiveResponseHeaders([]);
+
+    // Open the response panel halfway standard layout when request is sent
+    setResponseOpen(true);
+    const currentZoom = zoomLevel * 1.35;
+    if (layoutMode === "side-by-side") {
+      const availWidth = (window.innerWidth / currentZoom) - (sidebarOpen ? sidebarWidth : 0) - 8;
+      const halfWidth = Math.max(300, Math.round(availWidth / 2));
+      setRequestPaneWidth(halfWidth);
+    } else {
+      const halfHeight = Math.max(250, Math.round((window.innerHeight / currentZoom) / 2));
+      setResponsePaneHeight(halfHeight);
+    }
 
     const tStart = performance.now();
     abortControllerRef.current = new AbortController();
@@ -760,6 +775,7 @@ export default function App() {
                 onMinimize={() => {}}
                 isCollapsed={true}
                 onExpand={() => setResponseOpen(true)}
+                theme={theme}
               />
             </div>
           </div>
@@ -808,6 +824,7 @@ export default function App() {
                 activeRequest={requests.find((r) => r.id === tabs.find((t) => t.id === activeTabId)?.requestId) || null}
                 isMaximized={responseMaximized}
                 onToggleMaximize={() => setResponseMaximized(!responseMaximized)}
+                theme={theme}
                 onMinimize={() => {
                   setResponseOpen(false);
                   setResponseMaximized(false);
@@ -863,6 +880,7 @@ export default function App() {
                 activeRequest={requests.find((r) => r.id === tabs.find((t) => t.id === activeTabId)?.requestId) || null}
                 isMaximized={responseMaximized}
                 onToggleMaximize={() => setResponseMaximized(!responseMaximized)}
+                theme={theme}
                 onMinimize={() => {
                   setResponseOpen(false);
                   setResponseMaximized(false);

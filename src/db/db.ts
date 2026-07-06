@@ -450,6 +450,6 @@ export async function seedDatabaseIfEmpty() {
   await db.uiState.bulkAdd([
     { key: "sidebarWidth", value: 280 },
     { key: "requestPaneWidth", value: 500 },
-    { key: "theme", value: "dark" },
+    { key: "theme", value: "light" },
   ]);
 }

@@ -385,6 +385,23 @@ export default function CollectionSidebar({
   };
 
   const handleDuplicateRequest = async (req: RequestItem) => {
+    // Get all sibling requests in the same folder or root collection
+    const siblings = requests
+      .filter((r) => r.collectionId === req.collectionId && r.folderId === req.folderId)
+      .sort((a, b) => a.createdAt - b.createdAt);
+
+    const currentIndex = siblings.findIndex((r) => r.id === req.id);
+    let newCreatedAt = Date.now();
+
+    if (currentIndex !== -1 && currentIndex < siblings.length - 1) {
+      // Sibling exists after the original, place the copy halfway between them
+      const nextSibling = siblings[currentIndex + 1];
+      newCreatedAt = req.createdAt + (nextSibling.createdAt - req.createdAt) / 2;
+    } else {
+      // Sibling does not exist after, place the copy after the original
+      newCreatedAt = req.createdAt + 1000;
+    }
+
     const id = `req-copy-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
     await db.requests.add({
       ...req,
@@ -392,7 +409,7 @@ export default function CollectionSidebar({
       name: `${req.name} (Copy)`,
       pinned: false,
       favorite: false,
-      createdAt: Date.now(),
+      createdAt: newCreatedAt,
       updatedAt: Date.now(),
     });
     onSelectRequest(id);
