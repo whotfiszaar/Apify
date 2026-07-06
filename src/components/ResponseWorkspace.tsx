@@ -244,6 +244,37 @@ export default function ResponseWorkspace({
 
 
 
+  // Helper for HTTP status explanation (3-7 words)
+  const getStatusExplanation = (code: number): string => {
+    switch (code) {
+      case 200: return "Request completed successfully";
+      case 201: return "Resource created successfully";
+      case 202: return "Request accepted for processing";
+      case 204: return "Request succeeded with no content";
+      case 301: return "Resource moved permanently";
+      case 302: return "Resource found at different URL";
+      case 304: return "Resource not modified since cached";
+      case 400: return "Request contains invalid syntax";
+      case 401: return "Authentication credentials missing or invalid";
+      case 403: return "Access forbidden to requested resource";
+      case 404: return "Requested resource was not found";
+      case 405: return "HTTP method not allowed";
+      case 408: return "Server timed out waiting request";
+      case 409: return "Request conflict in server state";
+      case 429: return "Too many requests sent recently";
+      case 500: return "Server encountered an internal error";
+      case 502: return "Gateway received invalid upstream response";
+      case 503: return "Server temporarily unavailable";
+      case 504: return "Gateway timed out waiting upstream";
+      default:
+        if (code >= 200 && code < 300) return "Request processed successfully";
+        if (code >= 300 && code < 400) return "Request redirected elsewhere";
+        if (code >= 400 && code < 500) return "Client-side error encountered";
+        if (code >= 500) return "Server-side error encountered";
+        return "HTTP response code received";
+    }
+  };
+
   // Copy whole response helper
   const handleCopyResponse = () => {
     if (!responseData) return;
@@ -301,6 +332,11 @@ export default function ResponseWorkspace({
             {/* Status Code badge */}
             <span className={`text-[10px] font-bold font-mono px-2 py-0.5 rounded border ${getStatusColor(responseStatus)}`}>
               {responseStatus} {responseStatusText}
+            </span>
+
+            {/* Explanation definition tag */}
+            <span className="text-[10px] font-medium bg-neutral-900/60 border border-neutral-800/80 px-2 py-0.5 rounded text-neutral-400 font-sans tracking-wide">
+              {getStatusExplanation(responseStatus)}
             </span>
 
             {/* Time metric */}
