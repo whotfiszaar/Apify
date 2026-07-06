@@ -200,7 +200,7 @@ export default function CommandPalette({ isOpen, onClose, onAction }: CommandPal
         onClick={(e) => e.stopPropagation()}
       >
         {/* Search Input Box */}
-        <div className="flex items-center gap-3 border-b border-neutral-900 px-4 py-3.5 bg-neutral-950 shrink-0">
+        <div className="flex items-center gap-3 border-b border-neutral-800 px-4 py-3.5 bg-neutral-950 shrink-0">
           <Command className="h-5 w-5 text-neutral-400 shrink-0" />
           <input
             type="text"
@@ -285,7 +285,7 @@ export default function CommandPalette({ isOpen, onClose, onAction }: CommandPal
         </div>
 
         {/* Footer shortcuts helper */}
-        <div className="border-t border-neutral-900 px-4 py-2 bg-neutral-900/20 shrink-0 flex items-center justify-between text-[10px] text-neutral-500 font-mono select-none">
+        <div className="border-t border-neutral-800 px-4 py-2 bg-neutral-900/20 shrink-0 flex items-center justify-between text-[10px] text-neutral-500 font-mono select-none">
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1 font-sans">
               <span className="bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-850 font-mono">↑↓</span> Move

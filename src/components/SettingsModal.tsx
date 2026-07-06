@@ -494,12 +494,12 @@ export default function SettingsModal({
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-3xl h-[480px] rounded-xl border border-neutral-800 bg-[#181818] shadow-2xl text-neutral-200 flex overflow-hidden"
+        className="w-full max-w-3xl h-[480px] rounded-xl border border-neutral-800 bg-neutral-900 shadow-2xl text-neutral-200 flex overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         
         {/* Left Sidebar Menu */}
-        <div className="w-48 bg-[#151515] border-r border-neutral-900 p-3 flex flex-col gap-1.5 shrink-0">
+        <div className="w-48 bg-neutral-950 border-r border-neutral-800 p-3 flex flex-col gap-1.5 shrink-0">
           <div className="flex items-center gap-2 px-2 py-1.5 text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">
             <Settings className="h-4 w-4 text-neutral-500" />
             <span>Preferences</span>
@@ -557,9 +557,9 @@ export default function SettingsModal({
         </div>
 
         {/* Right Content Panel */}
-        <div className="flex-1 flex flex-col bg-[#1e1e1e]">
+        <div className="flex-1 flex flex-col bg-neutral-900">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-neutral-900 flex items-center justify-between shrink-0">
+          <div className="px-4 py-3 border-b border-neutral-800 flex items-center justify-between shrink-0">
             <h3 className="text-sm font-bold text-white capitalize">
               {activeTab === "general" && "General & Network Settings"}
               {activeTab === "themes" && "Visual Theme Selection"}

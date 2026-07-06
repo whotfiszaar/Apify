@@ -72,11 +72,11 @@ export default function ModernConfirmModal({
       }}
     >
       <div 
-        className="w-full max-w-sm rounded-xl border border-neutral-800 bg-[#181818] p-5 shadow-2xl text-neutral-200 flex flex-col gap-4"
+        className="w-full max-w-sm rounded-xl border border-neutral-800 bg-neutral-900 p-5 shadow-2xl text-neutral-200 flex flex-col gap-4"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-neutral-900 pb-3">
+        <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
           <h3 className="text-xs font-bold uppercase tracking-wider text-white flex items-center gap-1.5 font-sans">
             <AlertTriangle className={`h-4 w-4 ${isDestructive ? "text-rose-500" : "text-amber-500"}`} />
             {title}
@@ -96,7 +96,7 @@ export default function ModernConfirmModal({
         </p>
 
         {/* Footer */}
-        <div className="flex justify-end gap-2 border-t border-neutral-900 pt-3">
+        <div className="flex justify-end gap-2 border-t border-neutral-800 pt-3">
           <button
             ref={cancelBtnRef}
             onClick={onCancel}

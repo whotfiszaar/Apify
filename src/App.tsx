@@ -107,6 +107,9 @@ export default function App() {
       const pTheme = await db.uiState.get("theme");
       if (pTheme) {
         setTheme(pTheme.value);
+      } else {
+        const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        setTheme(systemPrefersDark ? "dark" : "light");
       }
 
       const pFontFamily = await db.uiState.get("fontFamily");
