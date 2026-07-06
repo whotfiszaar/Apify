@@ -111,6 +111,13 @@ $pngPath = Join-Path $publicDir "icon.png"
 $pngBmp = Draw-ApifyLogo 256 $pngPath
 $pngBmp.Dispose()
 
+# Generate PWA PNGs
+$pwa192Bmp = Draw-ApifyLogo 192 (Join-Path $publicDir "icon-192.png")
+$pwa192Bmp.Dispose()
+
+$pwa512Bmp = Draw-ApifyLogo 512 (Join-Path $publicDir "icon-512.png")
+$pwa512Bmp.Dispose()
+
 # Create multi-res bitmaps
 $sizes = @(16, 32, 48, 256)
 $bitmaps = @()

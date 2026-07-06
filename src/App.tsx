@@ -9,7 +9,7 @@ import CommandPalette from "./components/CommandPalette";
 import VariablesModal from "./components/VariablesModal";
 import SettingsModal from "./components/SettingsModal";
 import Toast from "./components/Toast";
-import { AlertTriangle, X, Sliders, Settings } from "lucide-react";
+import { AlertTriangle, X, Sliders, Settings, Download } from "lucide-react";
 
 interface TabResponseState {
   data: any;
@@ -26,6 +26,47 @@ export default function App() {
   const tabs = (useLiveQuery(() => db.tabs.orderBy("order").toArray()) as RequestTab[]) || [];
   const requests = (useLiveQuery(() => db.requests.toArray()) as RequestItem[]) || [];
   const variables = (useLiveQuery(() => db.variables.toArray()) as Variable[]) || [];
+
+  // PWA installation states
+  const [pwaPrompt, setPwaPrompt] = useState<any>(null);
+  const [isPwaInstalled, setIsPwaInstalled] = useState(false);
+  const [showPwaTooltip, setShowPwaTooltip] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setPwaPrompt(e);
+    };
+
+    const handleAppInstalled = () => {
+      setIsPwaInstalled(true);
+      setPwaPrompt(null);
+    };
+
+    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+    window.addEventListener("appinstalled", handleAppInstalled);
+
+    if (window.matchMedia("(display-mode: standalone)").matches || (navigator as any).standalone) {
+      setIsPwaInstalled(true);
+    }
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("appinstalled", handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallPWA = () => {
+    if (pwaPrompt) {
+      pwaPrompt.prompt();
+      pwaPrompt.userChoice.then((choiceResult: any) => {
+        if (choiceResult.outcome === "accepted") {
+          setIsPwaInstalled(true);
+          setPwaPrompt(null);
+        }
+      });
+    }
+  };
 
   // Active workspace states
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
@@ -962,16 +1003,63 @@ export default function App() {
 
       {/* VS Code Style Status Bar (Fixed 24px height, dark unified background, controls on the right, Settings on the left) */}
       <div className="h-6 shrink-0 bg-sidebar-bg border-t border-sidebar-border text-sidebar-text-muted flex items-center justify-between px-3 text-[10.5px] font-sans select-none z-[30] relative">
-        {/* Left side: Settings trigger */}
-        <div className="w-48 shrink-0 flex items-center gap-1.5">
+        {/* Left side: Settings trigger and PWA installation button */}
+        <div className="w-64 shrink-0 flex items-center gap-2">
           <button
             onClick={() => openSettingsToTab("general")}
-            className="p-1 hover:bg-sidebar-selection hover:text-sidebar-text rounded text-sidebar-text-muted transition-colors cursor-pointer bg-transparent border-none flex items-center gap-1"
+            className="p-1 hover:bg-sidebar-selection hover:text-sidebar-text rounded text-sidebar-text-muted transition-colors cursor-pointer bg-transparent border-none flex items-center gap-1 shrink-0"
             title="Preferences & Themes"
           >
             <Settings className="h-3.5 w-3.5" />
             <span className="font-sans font-medium text-[10px]">Settings</span>
           </button>
+
+          {pwaPrompt && (
+            <div className="relative flex items-center shrink-0">
+              <button
+                onClick={handleInstallPWA}
+                onMouseEnter={() => setShowPwaTooltip(true)}
+                onMouseLeave={() => setShowPwaTooltip(false)}
+                className="p-0.5 px-2 hover:bg-sidebar-selection text-emerald-400 hover:text-emerald-300 transition-all cursor-pointer bg-emerald-500/10 border border-emerald-500/20 rounded-md flex items-center gap-1 font-semibold animate-pulse"
+                title="Install Apify Desktop App"
+              >
+                <Download className="h-3 w-3" />
+                <span className="font-sans text-[9.5px]">Install App</span>
+              </button>
+
+              {/* High-tech glassmorphism tooltip */}
+              {showPwaTooltip && (
+                <div className="absolute bottom-7 left-0 w-64 bg-neutral-950/95 backdrop-blur-md border border-neutral-800 p-3 rounded-lg shadow-2xl z-[300] flex flex-col gap-2.5 animate-slide-up text-left">
+                  <div className="flex items-center gap-2 border-b border-neutral-900 pb-1.5">
+                    <svg viewBox="0 0 500 500" className="h-4.5 w-4.5 shrink-0">
+                      <rect width="500" height="500" rx="110" fill="#FF6C37"/>
+                      <g transform="translate(0, 5)">
+                        <g fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M 160 360 L 250 140" />
+                          <path d="M 340 360 L 250 140" />
+                          <path d="M 195 270 H 305" />
+                        </g>
+                        <circle cx="250" cy="140" r="22" fill="#FFFFFF" stroke="#FF6C37" stroke-width="8"/>
+                        <circle cx="160" cy="360" r="22" fill="#FFFFFF" stroke="#FF6C37" stroke-width="8"/>
+                        <circle cx="340" cy="360" r="22" fill="#FFFFFF" stroke="#FF6C37" stroke-width="8"/>
+                        <circle cx="250" cy="270" r="14" fill="#FF6C37" stroke="#FFFFFF" stroke-width="8"/>
+                      </g>
+                    </svg>
+                    <span className="font-sans font-bold text-xs text-white">Install Apify Desktop</span>
+                  </div>
+                  <p className="text-[10px] text-neutral-400 leading-normal font-sans">
+                    Run Apify in a dedicated app window, enable complete offline workspace utility, and speed up connection loads.
+                  </p>
+                  <button
+                    onClick={handleInstallPWA}
+                    className="w-full py-1 bg-[#ff6c37] hover:bg-[#e05a28] text-white text-[10px] font-bold rounded transition-colors border-none cursor-pointer"
+                  >
+                    Install Now
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Center: Branding */}

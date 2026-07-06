@@ -1,0 +1,36 @@
+{
+  "name": "Apify API Studio",
+  "short_name": "Apify",
+  "description": "Premium vector-perfect API client and workspace studio.",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#151515",
+  "theme_color": "#ff6c37",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
