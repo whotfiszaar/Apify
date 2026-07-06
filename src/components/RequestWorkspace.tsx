@@ -1114,11 +1114,16 @@ export default function RequestWorkspace({
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-neutral-900 font-sans">
           <svg viewBox="0 0 500 500" className="h-12 w-12 mb-4 animate-pulse shrink-0">
             <rect width="500" height="500" rx="110" fill="#FF6C37"/>
-            <g transform="translate(45, 10)">
-              <path d="M150 380 L250 120 L350 380" fill="none" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M185 290 H315" fill="none" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round"/>
-              <circle cx="250" cy="120" r="16" fill="#FF6C37" stroke="#FFFFFF" stroke-width="8"/>
-              <circle cx="250" cy="290" r="16" fill="#FF6C37" stroke="#FFFFFF" stroke-width="8"/>
+            <g transform="translate(0, 5)">
+              <g fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M 160 360 L 250 140" />
+                <path d="M 340 360 L 250 140" />
+                <path d="M 195 270 H 305" />
+              </g>
+              <circle cx="250" cy="140" r="22" fill="#FFFFFF" stroke="#FF6C37" stroke-width="8"/>
+              <circle cx="160" cy="360" r="22" fill="#FFFFFF" stroke="#FF6C37" stroke-width="8"/>
+              <circle cx="340" cy="360" r="22" fill="#FFFFFF" stroke="#FF6C37" stroke-width="8"/>
+              <circle cx="250" cy="270" r="14" fill="#FF6C37" stroke="#FFFFFF" stroke-width="8"/>
             </g>
           </svg>
           <h3 className="text-sm font-bold text-white uppercase tracking-wider">Apify Premium API Studio</h3>
@@ -1148,7 +1153,7 @@ export default function RequestWorkspace({
         <div className="flex-1 flex flex-col px-4 pb-4 pt-2 overflow-y-auto scrollbar-thin space-y-4">
           {/* Request Header Area (Breadcrumb + Editable Request Name) */}
           <div className="flex flex-col gap-0.5 pb-2 border-b border-neutral-900 select-none shrink-0">
-            {/* Breadcrumb Path */}
+            {/* Breadcrumb Path with Inline Edit */}
             <div className="flex items-center gap-1 text-[10px] text-neutral-500 font-medium font-sans">
               <svg viewBox="0 0 14 14" className="h-3 w-3 shrink-0 text-neutral-500" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
                 <line x1="1" y1="3.5" x2="13" y2="3.5"/>
@@ -1161,19 +1166,12 @@ export default function RequestWorkspace({
                   <span className="text-neutral-700">/</span>
                 </span>
               ))}
-              <span className="text-neutral-400 font-semibold truncate max-w-[150px]">
-                {activeRequest.name}
-              </span>
-            </div>
-
-            {/* Editable Request Name Heading */}
-            <div className="flex items-center gap-2 mt-1">
               <input
                 type="text"
                 value={tempName}
                 onChange={(e) => handleNameChange(e.target.value)}
                 placeholder="Untitled Request"
-                className="bg-transparent border-none text-base font-bold text-white focus:outline-none focus:bg-neutral-950 focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 w-full max-w-md transition-all font-sans"
+                className="bg-transparent border-none text-[11px] font-semibold text-neutral-200 hover:text-white focus:text-white focus:outline-none focus:bg-neutral-950 focus:ring-1 focus:ring-neutral-800 rounded px-1 py-0.5 w-64 transition-all font-sans"
               />
             </div>
           </div>

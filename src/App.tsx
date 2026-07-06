@@ -157,6 +157,10 @@ export default function App() {
       root.classList.add("dark");
       root.style.colorScheme = "dark";
     }
+    const anyWin = window as any;
+    if (anyWin.electronAPI && anyWin.electronAPI.setTheme) {
+      anyWin.electronAPI.setTheme(theme);
+    }
     if (isInitialized) {
       db.uiState.put({ key: "theme", value: theme });
     }

@@ -926,11 +926,16 @@ export default function CollectionSidebar({
            {/* Official Apify Logo */}
           <svg viewBox="0 0 500 500" className="h-4.5 w-4.5 shrink-0">
             <rect width="500" height="500" rx="110" fill="#FF6C37"/>
-            <g transform="translate(45, 10)">
-              <path d="M150 380 L250 120 L350 380" fill="none" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M185 290 H315" fill="none" stroke="#FFFFFF" stroke-width="32" stroke-linecap="round"/>
-              <circle cx="250" cy="120" r="16" fill="#FF6C37" stroke="#FFFFFF" stroke-width="8"/>
-              <circle cx="250" cy="290" r="16" fill="#FF6C37" stroke="#FFFFFF" stroke-width="8"/>
+            <g transform="translate(0, 5)">
+              <g fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M 160 360 L 250 140" />
+                <path d="M 340 360 L 250 140" />
+                <path d="M 195 270 H 305" />
+              </g>
+              <circle cx="250" cy="140" r="22" fill="#FFFFFF" stroke="#FF6C37" stroke-width="8"/>
+              <circle cx="160" cy="360" r="22" fill="#FFFFFF" stroke="#FF6C37" stroke-width="8"/>
+              <circle cx="340" cy="360" r="22" fill="#FFFFFF" stroke="#FF6C37" stroke-width="8"/>
+              <circle cx="250" cy="270" r="14" fill="#FF6C37" stroke="#FFFFFF" stroke-width="8"/>
             </g>
           </svg>
           <span className="text-[11px] font-black tracking-widest text-sidebar-text uppercase font-sans">Apify</span>

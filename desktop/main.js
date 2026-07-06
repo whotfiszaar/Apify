@@ -9,7 +9,7 @@ function createWindow() {
     height: 850,
     show: false, // Hide initial launch to prevent flashing non-maximized size
     title: "Apify - Premium API Studio",
-    icon: path.join(__dirname, 'icon.png'),
+    icon: path.join(__dirname, process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
     autoHideMenuBar: true,
     backgroundColor: "#151515",
     titleBarStyle: 'hidden',
@@ -181,8 +181,86 @@ ipcMain.handle('scan-postman', async () => {
   return unique;
 });
 
+// Listener to update titlebar overlay colors dynamically based on selected theme
+ipcMain.on('set-theme', (event, themeId) => {
+  const win = BrowserWindow.fromWebContents(event.sender);
+  if (!win) return;
+
+  let color = '#151515';
+  let symbolColor = '#a3a3a3';
+
+  switch (themeId) {
+    case 'light':
+      color = '#fafafa';
+      symbolColor = '#1f1f1f';
+      break;
+    case 'high-contrast-light':
+      color = '#ffffff';
+      symbolColor = '#000000';
+      break;
+    case 'high-contrast-dark':
+      color = '#000000';
+      symbolColor = '#ffffff';
+      break;
+    case 'ayu-light':
+      color = '#fafafa';
+      symbolColor = '#5c6773';
+      break;
+    case 'ayu-dark':
+      color = '#0f1419';
+      symbolColor = '#e6b450';
+      break;
+    case 'dracula':
+      color = '#282a36';
+      symbolColor = '#f8f8f2';
+      break;
+    case 'monokai':
+      color = '#272822';
+      symbolColor = '#f8f8f2';
+      break;
+    case 'night-owl-light':
+      color = '#fafcff';
+      symbolColor = '#403f53';
+      break;
+    case 'night-owl-dark':
+      color = '#011627';
+      symbolColor = '#d6deeb';
+      break;
+    case 'solarized-light':
+      color = '#fdf6e3';
+      symbolColor = '#586e75';
+      break;
+    case 'solarized-dark':
+      color = '#002b36';
+      symbolColor = '#839496';
+      break;
+    case 'nord':
+      color = '#2e3440';
+      symbolColor = '#d8dee9';
+      break;
+    default:
+      color = '#1e1e1e';
+      symbolColor = '#e1e1e1';
+      break;
+  }
+
+  try {
+    if (process.platform === 'win32' && win.setTitleBarOverlay) {
+      win.setTitleBarOverlay({
+        color: color,
+        symbolColor: symbolColor
+      });
+    }
+  } catch (err) {
+    console.error("Failed to update titlebar overlay:", err);
+  }
+});
+
 // Configure custom headers handling on session setup to bypass CORS natively while keeping webSecurity enabled
 app.whenReady().then(() => {
+  if (process.platform === 'win32') {
+    app.setAppUserModelId("com.apify.app");
+  }
   const filter = { urls: ['http://*/*', 'https://*/*'] };
 
   // Strip origin and referer to prevent server CORS issues
