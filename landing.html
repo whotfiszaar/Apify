@@ -320,6 +320,66 @@
     </div>
   </section>
 
+  <!-- Documentation, Setup & Installation Section -->
+  <section id="installation-docs" class="max-w-7xl mx-auto px-6 py-12 border-t border-neutral-900 w-full relative z-10 text-left font-sans">
+    <h2 class="text-lg font-extrabold text-white tracking-tight mb-6 flex items-center gap-2 font-display">
+      <span class="text-brand-orange">&lt;/&gt;</span> Setup & Installation Documentation
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-xs sm:text-sm text-slate-400">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h4 class="font-bold text-white mb-2 text-xs uppercase tracking-wider text-neutral-300">1. Windows Single-File Executable</h4>
+          <p class="leading-relaxed mb-2 text-xs text-neutral-400">
+            The Windows standalone executable is bundled with Electron and an optimized C# launcher for fast startup under 200ms.
+          </p>
+          <ul class="list-disc pl-5 space-y-1.5 text-xs text-neutral-500">
+            <li>Download the official <a href="https://github.com/whotfiszaar/Apify/releases/latest/download/Apify.exe" download class="text-brand-orange hover:underline font-semibold">Apify.exe</a> binary.</li>
+            <li>Move the executable to your local tools directory (e.g., <code>C:\Tools\Apify.exe</code>).</li>
+            <li>Double-click to launch. No install setup wizards, registry modifications, or administrator rights are required.</li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-2 text-xs uppercase tracking-wider text-neutral-300">2. PWA Web Sandbox Installation</h4>
+          <p class="leading-relaxed mb-2 text-xs text-neutral-400">
+            Run Apify inside a dedicated application window directly from your web browser as a Progressive Web App (PWA).
+          </p>
+          <ul class="list-disc pl-5 space-y-1.5 text-xs text-neutral-500">
+            <li>Navigate to the web version link: <a href="index.html" class="text-sky-400 hover:underline font-semibold">Launch Web Sandbox</a>.</li>
+            <li>Locate the pulsing <span class="text-emerald-400 font-semibold font-mono">Install App</span> indicator on the bottom status bar.</li>
+            <li>Hover to preview the glassmorphic tooltip card, and click <strong>Install Now</strong>.</li>
+            <li>Confirm the browser installation prompt to add Apify to your desktop/dock.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="flex flex-col gap-5">
+        <div>
+          <h4 class="font-bold text-white mb-2 text-xs uppercase tracking-wider text-neutral-300">3. Local Development Build</h4>
+          <p class="leading-relaxed mb-2 text-xs text-neutral-400">
+            Compile the workspace project directly from source for local modification.
+          </p>
+          <ol class="list-decimal pl-5 space-y-1.5 text-xs text-neutral-500">
+            <li>Clone the repository: <code>git clone https://github.com/whotfiszaar/Apify.git</code></li>
+            <li>Navigate into the workspace directory: <code>cd Apify</code></li>
+            <li>Install node dependencies: <code>npm install</code></li>
+            <li>Launch local development server: <code>npm run dev</code></li>
+            <li>Compile windows wrapper: <code>node desktop/build.cjs</code> (requires csc.exe C# compiler path).</li>
+          </ol>
+        </div>
+        <div>
+          <h4 class="font-bold text-white mb-2 text-xs uppercase tracking-wider text-neutral-300">🔒 Privacy & Data Policy</h4>
+          <p class="leading-relaxed mb-2 text-xs text-neutral-400">
+            Apify is built to be a 100% private developer utility tool:
+          </p>
+          <ul class="list-disc pl-5 space-y-1.5 text-xs text-neutral-500">
+            <li><strong>No Cloud Syncing:</strong> All request logs, variables, keys, and collection configurations are stored locally on your machine using IndexedDB.</li>
+            <li><strong>Zero Tracking:</strong> No tracking scripts, cookie storage, analytics, or remote logging metrics are configured.</li>
+            <li><strong>Safe Network Pipelines:</strong> Network API requests are dispatched directly from your browser sandbox or local desktop container.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Footer (Structured like Postman footer, but minimal without business resources) -->
   <footer class="w-full border-t border-neutral-900 bg-[#070709] py-12 text-xs relative z-10 select-none">
     <div class="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 mb-8 text-left">
@@ -335,7 +395,7 @@
       <div class="flex flex-col gap-3">
         <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Resources</span>
         <a href="https://github.com/whotfiszaar/Apify" target="_blank" class="text-neutral-400 hover:text-white transition-colors text-xs">GitHub Repository</a>
-        <a href="https://github.com/whotfiszaar/Apify#readme" target="_blank" class="text-neutral-400 hover:text-white transition-colors text-xs">Documentation</a>
+        <a href="#installation-docs" class="text-neutral-400 hover:text-white transition-colors text-xs">Documentation</a>
         <a href="https://github.com/whotfiszaar/Apify/blob/main/LICENSE" target="_blank" class="text-neutral-400 hover:text-white transition-colors text-xs">MIT License</a>
       </div>
 
@@ -344,7 +404,7 @@
         <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">About</span>
         <a href="https://github.com/whotfiszaar/Apify" target="_blank" class="text-neutral-400 hover:text-white transition-colors text-xs">About Apify</a>
         <a href="https://www.linkedin.com/in/akibkhone/" target="_blank" class="text-neutral-400 hover:text-white transition-colors text-xs">Contact Creator</a>
-        <a href="https://github.com/whotfiszaar/Apify/issues" target="_blank" class="text-neutral-400 hover:text-white transition-colors text-xs">Support & Issues</a>
+        <a href="#installation-docs" class="text-neutral-400 hover:text-white transition-colors text-xs">Privacy & Data Policy</a>
       </div>
 
       <!-- Col 4: Logo branding -->
