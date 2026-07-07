@@ -1,4 +1,7 @@
-{
+const fs = require('fs');
+const path = require('path');
+
+const config = {
   "buildCommand": "npm run build && cp landing.html dist/landing.html",
   "outputDirectory": "dist",
   "framework": null,
@@ -44,4 +47,8 @@
       "dest": "/index.html"
     }
   ]
-}
+};
+
+const targetPath = path.join(__dirname, '..', 'vercel.json');
+fs.writeFileSync(targetPath, JSON.stringify(config, null, 2), 'utf8');
+console.log('Successfully generated vercel.json configuration!');

@@ -193,6 +193,77 @@ export default function SettingsModal({
   const [sendNoCacheHeader, setSendNoCacheHeader] = useState(() => localStorage.getItem("restman-send-no-cache") !== "false");
   const [sendPostmanTokenHeader, setSendPostmanTokenHeader] = useState(() => localStorage.getItem("restman-send-token") === "true");
 
+  // Update check states
+  const [updateStatus, setUpdateStatus] = useState<"idle" | "checking" | "latest" | "available" | "downloading" | "failed">("idle");
+  const [updateInfo, setUpdateInfo] = useState<{ version: string; downloadUrl: string } | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+
+  const isNewerVersion = (current: string, latest: string): boolean => {
+    const clean = (v: string) => v.replace(/^v/, "").split(".").map(Number);
+    const currParts = clean(current);
+    const lateParts = clean(latest);
+    for (let i = 0; i < Math.max(currParts.length, lateParts.length); i++) {
+      const currVal = currParts[i] || 0;
+      const lateVal = lateParts[i] || 0;
+      if (lateVal > currVal) return true;
+      if (currVal > lateVal) return false;
+    }
+    return false;
+  };
+
+  const handleCheckForUpdates = async () => {
+    setUpdateStatus("checking");
+    setUpdateError(null);
+    try {
+      const res = await fetch("https://api.github.com/repos/whotfiszaar/Apify/releases/latest");
+      if (!res.ok) throw new Error("Failed to fetch latest release metadata from GitHub");
+      const data = await res.json();
+      
+      const latestTag = data.tag_name;
+      const currentVersion = "v1.2.0";
+      
+      if (isNewerVersion(currentVersion, latestTag)) {
+        const exeAsset = data.assets?.find((asset: any) => asset.name.toLowerCase().endsWith(".exe"));
+        const downloadUrl = exeAsset ? exeAsset.browser_download_url : null;
+        
+        if (downloadUrl) {
+          setUpdateInfo({ version: latestTag, downloadUrl });
+          setUpdateStatus("available");
+        } else {
+          throw new Error("No standalone Windows executable found in the latest release assets");
+        }
+      } else {
+        setUpdateStatus("latest");
+      }
+    } catch (err: any) {
+      console.error(err);
+      setUpdateError(err.message || "Failed to check for updates");
+      setUpdateStatus("failed");
+    }
+  };
+
+  const handleInstallUpdate = async () => {
+    if (!updateInfo) return;
+    setUpdateStatus("downloading");
+    
+    try {
+      const api = (window as any).electronAPI;
+      if (api && api.downloadAndInstallUpdate) {
+        const result = await api.downloadAndInstallUpdate(updateInfo.downloadUrl);
+        if (!result.success) {
+          throw new Error(result.error || "Auto-installation failed");
+        }
+      } else {
+        // Browser/Web fallback: Open download link directly
+        window.open(updateInfo.downloadUrl, "_blank");
+        setUpdateStatus("latest");
+      }
+    } catch (err: any) {
+      setUpdateError(err.message || "Installation failed");
+      setUpdateStatus("failed");
+    }
+  };
+
   // Editor Settings States
   const [editorFontFamily, setEditorFontFamily] = useState(() => localStorage.getItem("restman-editor-font-family") || "IBMPlexMono, 'Courier New', monospace");
   const [editorFontSize, setEditorFontSize] = useState(() => Number(localStorage.getItem("restman-editor-font-size")) || 12);
@@ -1398,6 +1469,75 @@ export default function SettingsModal({
                     <span>Developer Signature:</span>
                     <span className="font-sans font-semibold text-emerald-400">Designed by Akib</span>
                   </div>
+                </div>
+
+                {/* Modern updates check panel */}
+                <div className="flex flex-col gap-2 mt-6 border-t border-neutral-900 pt-4 w-full max-w-xs text-left">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-neutral-400 font-bold uppercase tracking-wider">Updates Check</span>
+                    {updateStatus === "idle" && (
+                      <button
+                        onClick={handleCheckForUpdates}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded text-[10px] font-bold cursor-pointer transition-all shadow-md active:scale-95"
+                      >
+                        Check for Updates
+                      </button>
+                    )}
+                    {updateStatus === "checking" && (
+                      <span className="text-[10px] text-sky-400 font-semibold flex items-center gap-1">
+                        <svg className="animate-spin h-3 w-3 text-sky-400" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Checking...
+                      </span>
+                    )}
+                    {updateStatus === "latest" && (
+                      <span className="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded">
+                        Latest Version
+                      </span>
+                    )}
+                    {updateStatus === "available" && (
+                      <button
+                        onClick={handleInstallUpdate}
+                        className="px-2.5 py-1 bg-[#ff6c37] hover:bg-[#e05a28] text-white rounded text-[10px] font-bold cursor-pointer transition-all shadow-md animate-bounce"
+                      >
+                        Install Update ({updateInfo?.version})
+                      </button>
+                    )}
+                    {updateStatus === "downloading" && (
+                      <span className="text-[10px] text-[#ff6c37] font-semibold flex items-center gap-1">
+                        <svg className="animate-spin h-3 w-3 text-[#ff6c37]" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Installing...
+                      </span>
+                    )}
+                    {updateStatus === "failed" && (
+                      <button
+                        onClick={handleCheckForUpdates}
+                        className="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded text-[10px] font-bold cursor-pointer transition-all"
+                      >
+                        Retry Check
+                      </button>
+                    )}
+                  </div>
+                  {updateError && (
+                    <p className="text-[9px] text-rose-400 leading-normal bg-rose-500/10 border border-rose-500/20 p-2 rounded mt-1 font-mono">
+                      Error: {updateError}
+                    </p>
+                  )}
+                  {updateStatus === "latest" && (
+                    <p className="text-[9px] text-neutral-500 leading-normal text-center mt-1">
+                      You are running the latest vector-perfect edition of Apify.
+                    </p>
+                  )}
+                  {updateStatus === "available" && (
+                    <p className="text-[9.5px] text-neutral-300 leading-relaxed mt-1">
+                      New update <span className="font-bold text-[#ff6c37]">{updateInfo?.version}</span> is ready on GitHub. Click install to update in place automatically.
+                    </p>
+                  )}
                 </div>
               </div>
             )}

@@ -281,6 +281,42 @@ app.whenReady().then(() => {
   });
 
   createWindow();
+
+  ipcMain.handle('download-and-install-update', async (event, downloadUrl) => {
+    try {
+      const response = await fetch(downloadUrl);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      
+      const currentExePath = app.getPath('exe');
+      const tempDir = os.tmpdir();
+      const tempNewExePath = path.join(tempDir, 'Apify_new.exe');
+      
+      fs.writeFileSync(tempNewExePath, buffer);
+      
+      const batPath = path.join(tempDir, 'update_apify.bat');
+      const batContent = `@echo off\r\n` +
+        `timeout /t 2 /nobreak > nul\r\n` +
+        `copy /y "${tempNewExePath}" "${currentExePath}"\r\n` +
+        `start "" "${currentExePath}"\r\n` +
+        `del "%~f0"\r\n`;
+      fs.writeFileSync(batPath, batContent);
+      
+      const { spawn } = require('child_process');
+      const child = spawn('cmd.exe', ['/c', batPath], {
+        detached: true,
+        stdio: 'ignore'
+      });
+      child.unref();
+      
+      app.quit();
+      return { success: true };
+    } catch (err) {
+      console.error('Update download/install failed:', err);
+      return { success: false, error: err.message };
+    }
+  });
 });
 
 app.on('window-all-closed', () => {

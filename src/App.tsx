@@ -29,7 +29,7 @@ export default function App() {
 
   // PWA installation states
   const [pwaPrompt, setPwaPrompt] = useState<any>(null);
-  const [isPwaInstalled, setIsPwaInstalled] = useState(false);
+  const [_isPwaInstalled, setIsPwaInstalled] = useState(false);
   const [showPwaTooltip, setShowPwaTooltip] = useState(false);
 
   useEffect(() => {
