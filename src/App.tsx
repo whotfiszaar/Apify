@@ -193,7 +193,7 @@ export default function App() {
   useEffect(() => {
     const root = window.document.documentElement;
     root.setAttribute("data-theme", theme);
-    const isLightTheme = ["light", "high-contrast-light", "ayu-light", "night-owl-light", "solarized-light"].includes(theme);
+    const isLightTheme = ["light", "ayu-light", "night-owl-light", "solarized-light"].includes(theme);
     if (isLightTheme) {
       root.classList.remove("dark");
       root.style.colorScheme = "light";

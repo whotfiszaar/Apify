@@ -1,7 +1,7 @@
-# ⚡ Apify — Premium Offline-First API Workstation
+# Apify - Fast and Private API Client
 
-> A blazing-fast, premium offline-first REST API workstation client and developer studio.
-> **No cloud sync. No telemetry. Zero tracking.** Just a clean, powerful workstation that runs entirely on your local machine.
+> A fast and private API client to test requests with no lag and no account required.
+> **No cloud sync. No tracking. 100% private.** Just a clean, simple tool that runs entirely on your own computer.
 
 ---
 

@@ -1,4 +1,4 @@
-import { X, Terminal, Settings, HelpCircle, Sun, Info, ShieldCheck, Check, Type, FolderDown, Loader2, RefreshCw, AlertCircle, Layers, Upload } from "lucide-react";
+import { X, Terminal, Settings, HelpCircle, Sun, Info, ShieldCheck, Check, Type, FolderDown, Loader2, RefreshCw, AlertCircle, Layers, Upload, Download } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { db } from "../db/db";
 import { importPostmanCollection } from "../utils/postmanImporter";
@@ -36,15 +36,6 @@ const THEMES = [
     borderBg: "border-[#2d2d2d]",
     accentBg: "bg-[#ff6c37]",
     textColor: "text-[#e1e1e1]",
-  },
-  {
-    id: "high-contrast-light",
-    name: "High Contrast Light",
-    sidebarBg: "bg-[#000000]",
-    appBg: "bg-[#ffffff]",
-    borderBg: "border-[#000000]",
-    accentBg: "bg-[#0000ff]",
-    textColor: "text-[#000000]",
   },
   {
     id: "high-contrast-dark",
@@ -342,6 +333,31 @@ export default function SettingsModal({
   useEffect(() => {
     localStorage.setItem("restman-app-badge", String(appShowNotificationBadge));
   }, [appShowNotificationBadge]);
+
+  const handleExportAllCollections = async () => {
+    try {
+      const collections = await db.collections.toArray();
+      const folders = await db.folders.toArray();
+      const requests = await db.requests.toArray();
+      
+      const backupData = {
+        version: "apify-backup-v1",
+        collections,
+        folders,
+        requests
+      };
+      
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `apify-collections-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error("Export failed", err);
+    }
+  };
 
   // Import / Sync States
   const [importTab, setImportTab] = useState<"auto" | "manual">("manual");
@@ -1388,6 +1404,25 @@ export default function SettingsModal({
                     <span>{importMsg.text}</span>
                   </div>
                 )}
+
+                {/* Backup & Export Section */}
+                <div className="border-t border-neutral-900 mt-6 pt-5 flex flex-col gap-3 font-sans">
+                  <h4 className="text-xs font-bold text-white uppercase tracking-wider font-mono">Backup & Export</h4>
+                  <div className="flex items-center justify-between gap-4 bg-neutral-950/30 border border-neutral-900 rounded-xl p-4">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-xs font-semibold text-neutral-250">Export Workspace Data</span>
+                      <span className="text-[10px] text-neutral-500">Download a single backup JSON file containing all collections, folders, and request configurations.</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleExportAllCollections}
+                      className="px-4 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg text-xs font-semibold transition-colors cursor-pointer border border-neutral-700 flex items-center gap-1.5 shrink-0"
+                    >
+                      <Download className="h-3.5 w-3.5" />
+                      <span>Export Collections</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
 

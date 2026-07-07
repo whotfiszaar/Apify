@@ -73,6 +73,55 @@ export default function RequestWorkspace({
   const [activeHeaderSuggestionsRowIdx, setActiveHeaderSuggestionsRowIdx] = useState<number | null>(null);
   const [headerFilter, setHeaderFilter] = useState("");
 
+  // Resizable columns states
+  const [paramColWidths, setParamColWidths] = useState<Record<string, number>>({
+    key: 200,
+    value: 200,
+    desc: 250
+  });
+
+  const [headerColWidths, setHeaderColWidths] = useState<Record<string, number>>({
+    key: 200,
+    value: 200,
+    desc: 250
+  });
+
+  const handleParamResizeStart = (colKey: string, startWidth: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      setParamColWidths(prev => ({
+        ...prev,
+        [colKey]: Math.max(80, startWidth + deltaX)
+      }));
+    };
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
+  const handleHeaderResizeStart = (colKey: string, startWidth: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      setHeaderColWidths(prev => ({
+        ...prev,
+        [colKey]: Math.max(80, startWidth + deltaX)
+      }));
+    };
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
   // Undo / Redo history tracking state definition
   interface HistoryState {
     url: string;
@@ -1301,10 +1350,37 @@ export default function RequestWorkspace({
                   <table className="w-full border-collapse text-xs font-mono text-left">
                     <thead>
                       <tr className="border-b border-neutral-900 bg-neutral-900/30 text-neutral-400">
-                        <th className="py-2 px-3 w-12 text-center">Active</th>
-                        <th className="py-2 px-3 w-1/3">Parameter Key</th>
-                        <th className="py-2 px-3 w-1/3">Value</th>
-                        <th className="py-2 px-3">Description</th>
+                        <th className="py-2 px-3 w-12 text-center select-none">Active</th>
+                        <th 
+                          className="py-2 px-3 relative select-none font-sans font-semibold text-neutral-200"
+                          style={{ width: `${paramColWidths.key}px` }}
+                        >
+                          Parameter Key
+                          <div 
+                            onMouseDown={(e) => handleParamResizeStart("key", paramColWidths.key, e)}
+                            className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#ff6c37]/50 bg-transparent z-[20] transition-colors"
+                          />
+                        </th>
+                        <th 
+                          className="py-2 px-3 relative select-none font-sans font-semibold text-neutral-200"
+                          style={{ width: `${paramColWidths.value}px` }}
+                        >
+                          Value
+                          <div 
+                            onMouseDown={(e) => handleParamResizeStart("value", paramColWidths.value, e)}
+                            className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#ff6c37]/50 bg-transparent z-[20] transition-colors"
+                          />
+                        </th>
+                        <th 
+                          className="py-2 px-3 relative select-none font-sans font-semibold text-neutral-200"
+                          style={{ width: `${paramColWidths.desc}px` }}
+                        >
+                          Description
+                          <div 
+                            onMouseDown={(e) => handleParamResizeStart("desc", paramColWidths.desc, e)}
+                            className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#ff6c37]/50 bg-transparent z-[20] transition-colors"
+                          />
+                        </th>
                         <th className="py-2 px-3 w-10 text-center"></th>
                       </tr>
                     </thead>
@@ -1326,7 +1402,7 @@ export default function RequestWorkspace({
                                 className="rounded border-neutral-800 bg-neutral-900 text-emerald-600 h-3.5 w-3.5 cursor-pointer accent-emerald-500"
                               />
                             </td>
-                            <td className="py-1.5 px-2">
+                            <td className="py-1.5 px-2" style={{ width: `${paramColWidths.key}px`, maxWidth: `${paramColWidths.key}px` }}>
                               <input
                                 type="text"
                                 value={param.key}
@@ -1336,10 +1412,10 @@ export default function RequestWorkspace({
                                 onMouseUp={handleInputCheckVar}
                                 onBlur={handleInputBlur}
                                 placeholder="Key"
-                                className="w-full bg-transparent border-none text-white focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs"
+                                className="w-full bg-transparent border-none text-white focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs truncate"
                               />
                             </td>
-                            <td className="py-1.5 px-2">
+                            <td className="py-1.5 px-2" style={{ width: `${paramColWidths.value}px`, maxWidth: `${paramColWidths.value}px` }}>
                               <input
                                 type="text"
                                 value={param.value}
@@ -1349,16 +1425,16 @@ export default function RequestWorkspace({
                                 onMouseUp={handleInputCheckVar}
                                 onBlur={handleInputBlur}
                                 placeholder="Value"
-                                className="w-full bg-transparent border-none text-neutral-300 focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs"
+                                className="w-full bg-transparent border-none text-neutral-300 focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs truncate"
                               />
                             </td>
-                            <td className="py-1.5 px-2">
+                            <td className="py-1.5 px-2" style={{ width: `${paramColWidths.desc}px`, maxWidth: `${paramColWidths.desc}px` }}>
                               <input
                                 type="text"
                                 value={param.description || ""}
                                 onChange={(e) => handleParamRowChange(idx, "description", e.target.value)}
                                 placeholder="Optional description..."
-                                className="w-full bg-transparent border-none text-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs font-sans"
+                                className="w-full bg-transparent border-none text-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs font-sans truncate"
                               />
                             </td>
                             <td className="py-1.5 px-2 text-center">
@@ -1374,6 +1450,16 @@ export default function RequestWorkspace({
                       )}
                     </tbody>
                   </table>
+                </div>
+                <div className="mt-2.5 flex justify-start">
+                  <button
+                    type="button"
+                    onClick={handleAddParamRow}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-900/60 hover:bg-neutral-900 border border-neutral-850 hover:border-neutral-800 text-neutral-300 rounded-lg text-xs font-sans transition-all cursor-pointer shadow-md"
+                  >
+                    <PlusCircle className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>Add Parameter Row</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -1396,10 +1482,37 @@ export default function RequestWorkspace({
                   <table className="w-full border-collapse text-xs font-mono text-left">
                     <thead>
                       <tr className="border-b border-neutral-900 bg-neutral-900/30 text-neutral-400">
-                        <th className="py-2 px-3 w-12 text-center">Active</th>
-                        <th className="py-2 px-3 w-1/3">Header Name</th>
-                        <th className="py-2 px-3 w-1/3">Value</th>
-                        <th className="py-2 px-3">Description</th>
+                        <th className="py-2 px-3 w-12 text-center select-none">Active</th>
+                        <th 
+                          className="py-2 px-3 relative select-none font-sans font-semibold text-neutral-200"
+                          style={{ width: `${headerColWidths.key}px` }}
+                        >
+                          Header Name
+                          <div 
+                            onMouseDown={(e) => handleHeaderResizeStart("key", headerColWidths.key, e)}
+                            className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#ff6c37]/50 bg-transparent z-[20] transition-colors"
+                          />
+                        </th>
+                        <th 
+                          className="py-2 px-3 relative select-none font-sans font-semibold text-neutral-200"
+                          style={{ width: `${headerColWidths.value}px` }}
+                        >
+                          Value
+                          <div 
+                            onMouseDown={(e) => handleHeaderResizeStart("value", headerColWidths.value, e)}
+                            className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#ff6c37]/50 bg-transparent z-[20] transition-colors"
+                          />
+                        </th>
+                        <th 
+                          className="py-2 px-3 relative select-none font-sans font-semibold text-neutral-200"
+                          style={{ width: `${headerColWidths.desc}px` }}
+                        >
+                          Description
+                          <div 
+                            onMouseDown={(e) => handleHeaderResizeStart("desc", headerColWidths.desc, e)}
+                            className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#ff6c37]/50 bg-transparent z-[20] transition-colors"
+                          />
+                        </th>
                         <th className="py-2 px-3 w-10 text-center"></th>
                       </tr>
                     </thead>
@@ -1421,7 +1534,7 @@ export default function RequestWorkspace({
                                 className="rounded border-neutral-800 bg-neutral-900 text-emerald-600 h-3.5 w-3.5 cursor-pointer accent-emerald-500"
                               />
                             </td>
-                            <td className="py-1.5 px-2">
+                            <td className="py-1.5 px-2" style={{ width: `${headerColWidths.key}px`, maxWidth: `${headerColWidths.key}px` }}>
                               <div className="relative">
                                 <input
                                   type="text"
@@ -1446,7 +1559,7 @@ export default function RequestWorkspace({
                                   onSelect={handleInputCheckVar}
                                   onMouseUp={handleInputCheckVar}
                                   placeholder="e.g. Content-Type"
-                                  className="w-full bg-transparent border-none text-white focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs font-mono"
+                                  className="w-full bg-transparent border-none text-white focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs font-mono truncate"
                                 />
 
                                 {activeHeaderSuggestionsRowIdx === idx && (
@@ -1489,7 +1602,7 @@ export default function RequestWorkspace({
                                 )}
                               </div>
                             </td>
-                            <td className="py-1.5 px-2">
+                            <td className="py-1.5 px-2" style={{ width: `${headerColWidths.value}px`, maxWidth: `${headerColWidths.value}px` }}>
                               <input
                                 type="text"
                                 value={h.value}
@@ -1499,16 +1612,16 @@ export default function RequestWorkspace({
                                 onMouseUp={handleInputCheckVar}
                                 onBlur={handleInputBlur}
                                 placeholder="Value"
-                                className="w-full bg-transparent border-none text-neutral-300 focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs"
+                                className="w-full bg-transparent border-none text-neutral-300 focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs truncate"
                               />
                             </td>
-                            <td className="py-1.5 px-2">
+                            <td className="py-1.5 px-2" style={{ width: `${headerColWidths.desc}px`, maxWidth: `${headerColWidths.desc}px` }}>
                               <input
                                 type="text"
                                 value={h.description || ""}
                                 onChange={(e) => handleHeaderRowChange(idx, "description", e.target.value)}
                                 placeholder="Optional description..."
-                                className="w-full bg-transparent border-none text-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs font-sans"
+                                className="w-full bg-transparent border-none text-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-800 rounded px-1.5 py-0.5 text-xs font-sans truncate"
                               />
                             </td>
                             <td className="py-1.5 px-2 text-center">
@@ -1524,6 +1637,16 @@ export default function RequestWorkspace({
                       )}
                     </tbody>
                   </table>
+                </div>
+                <div className="mt-2.5 flex justify-start">
+                  <button
+                    type="button"
+                    onClick={handleAddHeaderRow}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-900/60 hover:bg-neutral-900 border border-neutral-850 hover:border-neutral-800 text-neutral-300 rounded-lg text-xs font-sans transition-all cursor-pointer shadow-md"
+                  >
+                    <PlusCircle className="h-3.5 w-3.5 text-emerald-400" />
+                    <span>Add Header Row</span>
+                  </button>
                 </div>
               </div>
             )}

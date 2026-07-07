@@ -93,6 +93,28 @@ export default function ResponseWorkspace({
   const [selectedTableRow, setSelectedTableRow] = useState<any | null>(null);
   const [copiedResponse, setCopiedResponse] = useState(false);
 
+  // Response columns resizes states
+  const [respColWidths, setRespColWidths] = useState<Record<string, number>>({});
+
+  const handleRespResizeStart = (colName: string, startWidth: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const startX = e.clientX;
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      const deltaX = moveEvent.clientX - startX;
+      setRespColWidths(prev => ({
+        ...prev,
+        [colName]: Math.max(60, startWidth + deltaX)
+      }));
+    };
+    const handleMouseUp = () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", handleMouseUp);
+  };
+
   const editorFontFamily = localStorage.getItem("restman-editor-font-family") || "IBMPlexMono, 'Courier New', monospace";
   const editorFontSize = Number(localStorage.getItem("restman-editor-font-size")) || 11;
 
@@ -536,6 +558,7 @@ export default function ResponseWorkspace({
                       <tr className="border-b border-neutral-900 bg-neutral-900/40 text-neutral-400 sticky top-0 backdrop-blur-md">
                         {tableColumns.map((col) => {
                           const isSorted = sortKey === col;
+                          const currentWidth = respColWidths[col] || 150;
                           return (
                             <th
                               key={col}
@@ -547,9 +570,10 @@ export default function ResponseWorkspace({
                                   setSortDesc(false);
                                 }
                               }}
-                              className="py-2.5 px-3 font-semibold cursor-pointer hover:bg-neutral-900/60 transition-colors select-none whitespace-nowrap border-r border-neutral-900"
+                              className="py-2.5 px-3 font-semibold cursor-pointer hover:bg-neutral-900/60 transition-colors select-none whitespace-nowrap border-r border-neutral-900 relative group/col"
+                              style={{ width: `${currentWidth}px`, minWidth: `${currentWidth}px` }}
                             >
-                              <div className="flex items-center gap-1.5">
+                              <div className="flex items-center gap-1.5 pr-2">
                                 <span className="text-[11px] font-bold text-neutral-200 font-sans">{col}</span>
                                 {isSorted && (
                                   <span className="text-[9px] text-emerald-400 font-bold">
@@ -557,6 +581,10 @@ export default function ResponseWorkspace({
                                   </span>
                                 )}
                               </div>
+                              <div 
+                                onMouseDown={(e) => handleRespResizeStart(col, currentWidth, e)}
+                                className="absolute top-0 right-0 w-1.5 h-full cursor-col-resize hover:bg-[#ff6c37]/50 bg-transparent z-[20] transition-colors"
+                              />
                             </th>
                           );
                         })}
@@ -580,6 +608,7 @@ export default function ResponseWorkspace({
                               const cell = row[col];
                               const smart = formatSmartData(cell, col);
                               let formattedStyle = "text-neutral-300";
+                              const currentWidth = respColWidths[col] || 150;
 
                               if (smart.type === "date") formattedStyle = "text-indigo-400";
                               else if (smart.type === "currency") formattedStyle = "text-emerald-400 font-bold";
@@ -594,7 +623,8 @@ export default function ResponseWorkspace({
                               return (
                                 <td
                                   key={col}
-                                  className="py-2 px-3 truncate max-w-[180px] border-r border-neutral-900"
+                                  className="py-2 px-3 truncate border-r border-neutral-900"
+                                  style={{ width: `${currentWidth}px`, maxWidth: `${currentWidth}px` }}
                                   title={smart.formatted}
                                 >
                                   {smart.type === "image" ? (

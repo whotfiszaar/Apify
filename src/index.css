@@ -163,24 +163,6 @@
   color-scheme: dark;
 }
 
-/* ── high-contrast-light ────────────────────────── */
-[data-theme="high-contrast-light"] {
-  --sidebar-bg: #000000;
-  --sidebar-text: #ffffff;
-  --sidebar-text-muted: #cccccc;
-  --sidebar-border: #000000;
-  --sidebar-selection: #1a1a1a;
-  --app-bg: #ffffff;
-  --tab-inactive-bg: #f0f0f0;
-  --border-color: #000000;
-  --selection-bg: #d0d0d0;
-  --text-muted: #333333;
-  --text-main: #000000;
-  --accent-color: #0000ff;
-  --accent-hover-color: #0000cc;
-  color-scheme: light;
-}
-
 /* ── ayu-light ──────────────────────────────────── */
 [data-theme="ayu-light"] {
   --sidebar-bg: #f0ede4;
@@ -373,21 +355,17 @@ select:hover {
 }
 
 [data-theme="light"] .text-white,
-[data-theme="high-contrast-light"] .text-white,
 [data-theme="ayu-light"] .text-white,
 [data-theme="night-owl-light"] .text-white,
 [data-theme="solarized-light"] .text-white {
   color: var(--text-main) !important;
 }
 
-/* Ensure neutral-300 and neutral-400 classes adapt to high contrast dark text in light mode */
 [data-theme="light"] .text-neutral-200,
-[data-theme="high-contrast-light"] .text-neutral-200,
 [data-theme="ayu-light"] .text-neutral-200,
 [data-theme="night-owl-light"] .text-neutral-200,
 [data-theme="solarized-light"] .text-neutral-200,
 [data-theme="light"] .text-neutral-300,
-[data-theme="high-contrast-light"] .text-neutral-300,
 [data-theme="ayu-light"] .text-neutral-300,
 [data-theme="night-owl-light"] .text-neutral-300,
 [data-theme="solarized-light"] .text-neutral-300 {
@@ -395,7 +373,6 @@ select:hover {
 }
 
 [data-theme="light"] .text-neutral-400,
-[data-theme="high-contrast-light"] .text-neutral-400,
 [data-theme="ayu-light"] .text-neutral-400,
 [data-theme="night-owl-light"] .text-neutral-400,
 [data-theme="solarized-light"] .text-neutral-400 {
@@ -403,7 +380,6 @@ select:hover {
 }
 
 [data-theme="light"] .placeholder-neutral-600::placeholder,
-[data-theme="high-contrast-light"] .placeholder-neutral-600::placeholder,
 [data-theme="ayu-light"] .placeholder-neutral-600::placeholder,
 [data-theme="night-owl-light"] .placeholder-neutral-600::placeholder,
 [data-theme="solarized-light"] .placeholder-neutral-600::placeholder {
