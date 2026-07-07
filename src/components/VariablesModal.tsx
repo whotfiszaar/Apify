@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { db, type Variable } from "../db/db";
 import { X, Plus, Trash2, Eye, EyeOff, Search, Copy, Check } from "lucide-react";
 import { useLiveQuery } from "dexie-react-hooks";
+import { refactorVariableOccurrences } from "../utils/variableRefactor";
 
 interface VariablesModalProps {
   isOpen: boolean;
@@ -47,6 +48,9 @@ export default function VariablesModal({ isOpen, onClose }: VariablesModalProps)
     debounceTimers.current[`g-val-${id}`] = setTimeout(async () => {
       try {
         await db.variables.update(id, { value: val });
+        if (val.trim()) {
+          await refactorVariableOccurrences(id, val);
+        }
       } catch (err) {
         console.error("Failed to update variable value:", err);
       }
@@ -87,6 +91,10 @@ export default function VariablesModal({ isOpen, onClose }: VariablesModalProps)
         description: newDesc,
         enabled: true,
       });
+
+      if (newValue.trim()) {
+        await refactorVariableOccurrences(trimmedKey, newValue);
+      }
 
       setNewKey("");
       setNewValue("");

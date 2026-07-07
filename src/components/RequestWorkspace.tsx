@@ -2,9 +2,9 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { showToast } from "../utils/toast";
 import { db, type RequestItem, type RequestTab, type Variable } from "../db/db";
 import { parseUrlAndParams, buildUrlWithParams, detectSmartRequestType, resolveVariables } from "../utils/urlHelper";
+import { refactorVariableOccurrences } from "../utils/variableRefactor";
 import { useLiveQuery } from "dexie-react-hooks";
 import {
-  Play,
   Plus,
   X,
   PlusCircle,
@@ -1313,10 +1313,26 @@ export default function RequestWorkspace({
             ) : (
               <button
                 onClick={() => onSendRequest(activeRequest)}
-                className="rounded-lg bg-[var(--accent-color)] hover:opacity-90 active:scale-95 px-4 py-2 text-white flex items-center justify-center gap-1.5 transition-all duration-150 cursor-pointer shrink-0 text-xs font-semibold shadow-lg shadow-[var(--accent-color)]/10 font-sans border-0"
+                className="send-btn rounded-lg bg-[var(--accent-color)] text-white px-4 py-2 flex items-center justify-center transition-all duration-150 cursor-pointer shrink-0 text-xs font-semibold shadow-lg shadow-[var(--accent-color)]/10 font-sans border-0"
                 title="Send Request (Ctrl+Enter)"
               >
-                <Play className="h-3.5 w-3.5 fill-current" />
+                <div className="svg-wrapper-1 mr-1">
+                  <div className="svg-wrapper">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      width="14"
+                      height="14"
+                      className="fill-current text-white"
+                    >
+                      <path fill="none" d="M0 0h24v24H0z"></path>
+                      <path
+                        fill="currentColor"
+                        d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
                 <span>Send</span>
               </button>
             )}
@@ -2083,7 +2099,12 @@ export default function RequestWorkspace({
                     onClick={async () => {
                       try {
                         await db.variables.update(v.id, { value: selectionContextMenu.text });
-                        showToast(`Updated variable \${${v.id}} value`, "success");
+                        const count = await refactorVariableOccurrences(v.id, selectionContextMenu.text);
+                        if (count > 0) {
+                          showToast(`Updated variable and refactored ${count} references`, "success");
+                        } else {
+                          showToast(`Updated variable \${${v.id}} value`, "success");
+                        }
                         replaceSelectionWithVar(selectionContextMenu.targetInput, v.id);
                       } catch (err) {
                         showToast("Failed to update variable", "error");
@@ -2182,8 +2203,18 @@ export default function RequestWorkspace({
                       description: newVarDesc
                     });
 
+                    if (newVarValue.trim()) {
+                      const count = await refactorVariableOccurrences(trimmedName, newVarValue);
+                      if (count > 0) {
+                        showToast(`Created variable and refactored ${count} references`, "success");
+                      } else {
+                        showToast(`Created variable \${${trimmedName}}`, "success");
+                      }
+                    } else {
+                      showToast(`Created variable \${${trimmedName}}`, "success");
+                    }
+
                     replaceSelectionWithVar(createVariableData.inputElement, trimmedName);
-                    showToast(`Created variable \${${trimmedName}}`, "success");
                     setCreateVariableData(null);
                   } catch (err) {
                     showToast("Failed to create variable", "error");
